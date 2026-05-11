@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>    
+    <title>PsyExperiment</title>    
+    <script src="https://unpkg.com/jspsych@7.1.2"></script>
+    <link href="https://unpkg.com/jspsych@7.1.2/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.2"></script>
+    <script src="plugin-reconstruct-2D.js"></script>
+    <script src="make_condition.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-database.js"></script>   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.2/underscore.min.js" integrity="sha512-6mqtVtgbfCJNW9phBE9ZIsviePVIHAv5No5hF+Sw/A/FSCQTUaHQkKykXhr5IpNhJkvcqftZLIe+T6nsCro5fw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body></body>
+
+<script type="text/javascript">
+    // Firebase set up
+    const firebaseConfig = {
+        apiKey: "AIzaSyAnc9seZOPUVEB8sHynN_ohEjk_AC3ZF2s",
+        authDomain: "scenecp-transfer.firebaseapp.com",
+        projectId: "scenecp-transfer",
+        storageBucket: "scenecp-transfer.appspot.com",
+        messagingSenderId: "560772576439",
+        appId: "1:560772576439:web:f21d145cd5c3b450990932"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // login anonymous user
+    firebase.auth().signInAnonymously().catch(function(error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+    });      
+</script>
+
+<script>
+    
+    // ** design ** //
+    var key_feature = 'lighting'
+    var cat_label = ['set1', 'set2']  //category label
+    var random_cat_label = _.sample(cat_label, 2) //cat_label에서 2개를 랜덤으로 뽑음
+    var room_set = ['bedroom3_wood-lighting', 'livingroom24_wood-lighting']
+    var learning_set = room_set[0]
+    var transfer_set = room_set[1]
+    var practice_set = 'bedroom3_wood-lighting';
+    var space_rot = 0;//Math.random()*360; //공간 회전 각도. 현재는 0도. 주석 부분은 0~360도 회전하려던 코드
+    var n_round_learning = 5;  //학습 반복 횟수 
+    var econd = make_condition(key_feature, random_cat_label, learning_set, n_round_learning, transfer_set);  //econd는 experimental condition.
+    var pcond = make_condition(key_feature, random_cat_label, practice_set, n_round_learning, transfer_set);  //pcond는 practice condition.
+    console.log(econd)
+    // chunking (for breaks for test blocks)
+    var n_round_test = 5;
+    var testing_cond_by_round = _.chunk(_.shuffle(econd.memory),econd.memory.length/n_round_test);  
+    //위에 _by_round는 휴식을 넣기 위한 구조, econd.memory는 테스트에 사용할 trial 목록, _.shuffle은 랜더마이징, _.chunk는 배열을 여러 덩어리로 나눔>test trial을 5라운드로 나눔
+    var transfer_cond_by_round = _.chunk(_.shuffle(econd.transfer_memory),econd.transfer_memory.length/n_round_test); //transfer테스트도 똑같이 나눔
+
+    // ** initialize ** //
+    const jsPsych = initJsPsych();  //jspsych실험 운영 시스템 켜기. jspsych 실험의 전원버튼
+   
+    // ** image preloading ** //
+    var preload_inst = {
+        type: jsPsychPreload, //파일을 미리 불러오는 plugin
+        images: ['stimuli/instruction/welcome_p1.png', 'stimuli/instruction/session1_p2.png',
+        'stimuli/instruction/session2_p3.png', 'stimuli/instruction/session3_p4.png',
+        'stimuli/instruction/session4_p5.png'],
+        data: {disp_type: 'preload_inst'} //display_type. 해당 trial에 붙이는 이름
+    }
+    var images_learning = []; //여기에 학습할 이미지 경로를 넣는다
+    for (var i=0; i<625; i++){  //i를 0부터 624까지 반복한다 > 학습 이미지 625개 생성
+        images_learning.push("stimuli/"+learning_set+"/"+("000000"+i).slice(-6)+".webp")
+    }
+    images_learning.push("stimuli/"+learning_set+"/"+"999999.webp")
+    var preload_learning = {
+        type: jsPsychPreload, 
+        images: images_learning, //위에서 만든 학습이미지 배열
+        data: {disp_type: 'preload_learning'} //마찬가지로 data tag
+    }
+    var images_transfer = [];  //transfer이미지도 위와 동일하게 만듬
+    for (var i=0; i<625; i++){
+        images_transfer.push("stimuli/"+transfer_set+"/"+("000000"+i).slice(-6)+".webp")
+    }    
+    images_transfer.push("stimuli/"+transfer_set+"/"+"999999.webp")
+    var preload_transfer = {
+        type: jsPsychPreload, 
+        images: images_transfer,
+        data: {disp_type: 'preload_transfer'}
+    }
+    
+    
+    // ** instruction ** //
+    var inst_welcome = {
+        type: jsPsychHtmlButtonResponse,  //html 내용을 보여주고 버튼 클릭을 받음
+        stimulus: '<img src="stimuli/instruction/welcome_p1.png" style="width:1000px"></img>', //welcome_p1.png를 화면에 보여줌
+        choices: ['next'],  //버튼 생성
+        data: {disp_type: 'inst_welcome'}
+    }
+    var inst_session1 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<img src="stimuli/instruction/session1_p2.png" style="width:1000px"></img>',
+        choices: ['start'],
+        data: {disp_type: 'inst_session1'}
+    }
+    var inst_session2 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<img src="stimuli/instruction/session2_p3.png" style="width:1000px"></img>',
+        choices: ['start'],
+        data: {disp_type: 'inst_session2'}
+    }
+    var inst_session3 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<img src="stimuli/instruction/session3_p4.png" style="width:1000px"></img>',
+        choices: ['start'],
+        data: {disp_type: 'inst_session3'}
+    }
+    var inst_session4 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<img src="stimuli/instruction/session4_p5.png" style="width:1000px"></img>',
+        choices: ['start'],
+        data: {disp_type: 'inst_session4'}
+    }
+
+    // ** initial learn ** //    
+    var learn_display = {  //이제부터 학습 trial이라는 뜻
+        type: jsPsychImageKeyboardResponse,  //이미지 보여주고 키보드 입력 받음
+        stimulus: jsPsych.timelineVariable('img_path'), //이미지 경로를 timeline variable에서 가져옴
+        //timelineVariable은 같은 실험 구조를 반복하면서, 자극 or 정답 값만 바꾸기 위한 장치
+        choices: ['e', 'i'],
+        data: {                        //이 trial에 저장할 data들
+            disp_type: 'learn_display',
+            key_feature: jsPsych.timelineVariable('key_feature'),
+            answer: jsPsych.timelineVariable('label'),
+            position: jsPsych.timelineVariable('position'),
+            stim_coord: jsPsych.timelineVariable('stim_coord'),
+            stim_idx: jsPsych.timelineVariable('stim_idx')
+        },
+        prompt: '<p>Press "e" for Set 1 and "i" for Set 2.</p>',
+        trial_duration: 2000,
+        //on_finish는 trial끝나면 실행되는 함수. if부분은 정답 label이 set1이면 e가 정답, else if엔 i가 정답
+        on_finish: function(data){            
+            if(jsPsych.timelineVariable('label')=="set1"){
+                var correct_key = "e"
+            }else if(jsPsych.timelineVariable('label')=="set2"){
+                var correct_key = "i"
+            }              
+            if(data.response == null){   //응답이 없을 때는 too slow 보여줌 
+                data.correct = 'late';   //여기 있는 late, correct, wrong은 밑의 feedback_display에서 정의함
+            } else {
+                if(jsPsych.pluginAPI.compareKeys(data.response, correct_key)){
+                    data.correct = 'correct';
+                } else {
+                    data.correct = 'wrong';
+                }
+            }            
+        }
+    } 
+    var feedback_display = {
+        type:jsPsychHtmlKeyboardResponse,
+        stimulus: function(){  //stimulus를 함수로 정의. 이전 trial 결과에 따라 내용 바뀜.
+            var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct; //jsPsych.data.get()=전체 데이터, last(1)=마지막 trial, values()[0].correct=correct 값  
+            if(last_trial_correct == 'correct') {
+                var fb = '<p><mark style="color:green; background:none; font-size:30pt;">Correct!</mark></br></p>' 
+            } else if(last_trial_correct == 'wrong'){
+                var fb = '<p><mark style="color:red; background:none; font-size:30pt;">Wrong...</mark></br></p>'
+            } else if(last_trial_correct == 'late'){
+                var fb = '<p><mark style="color:brown; background:none; font-size:30pt;">Too slow</mark></p>'
+            }
+            return fb
+        },
+        trial_duration: 1000,
+        choices: "NO_KEYS",
+        data: {disp_type: "learn_feedback"}
+    }
+    // var learning_prac = { // include or not? 
+    //     timeline: [learn_display, feedback_display],
+    //     timeline_variables: _.shuffle(pcond.learning.r1).slice(0,10),
+    //     randomize_order: true
+    // }
+    for(r=0; r<n_round_learning; r++){  //학습 라운드 수만큼 반복
+        this['learn_main'+(r+1)] = {    //this는 '현재 객체'를 의미하는 js키워드. 이거 질문!!
+            timeline: [learn_display, feedback_display],  //각 trial은 학습자극 > 피드백 순서
+            timeline_variables: econd.learning['r'+(r+1)], //r1,r2,r3,r4,r5 자극 세트 사용
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_round_learning; r++){  //라운드마다 쉬는 시간 부여   
+        if(r!=(n_round_learning-1)){  //마지막 라운드가 아니면 아래 prompt보여줌
+            this['learn_main_break'+(r+1)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round '+(r+1)+'.</br>'+
+                    'You have '+(n_round_learning-r-1)+' more round(s) to go.</br>'+
+                    'Take a break and press the button to proceed.</br></br></div>',               
+                choices: ['start'],
+                data: {disp_type: 'learn_main_break'}
+            }
+        } else {  //마지막 라운드면 다른 세션으로 이동
+            this['learn_main_break'+(r+1)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round'+(r+1)+'.</br>'+
+                'Take a break and press the button to move on to the next session.</br></br></div>',                    
+                choices: ['next'],
+                data: {disp_type: 'learn_main_break'}
+            }
+
+        }                       
+    }
+    // ** reconstruction ** //
+    var fixation = {
+        type: jsPsychHtmlKeyboardResponse, //왜 keyboardresponse받지?
+        stimulus: '<p style="font-size: 48px;">+</p>',
+        choices: "NO_KEYS",
+        trial_duration: 1000,
+        data: {disp_type: 'fixation'}
+    }
+    var blank = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: ' ',  //빈 화면 trial에서는 아무것도 안 보여줌
+        choices: "NO_KEYS",
+        trial_duration: 1000,
+        data: {disp_type: 'blank'}
+    }
+    var target_display = {
+        type: jsPsychImageKeyboardResponse,
+        stimulus: jsPsych.timelineVariable('img_path'), //현재 trial의 이미지 경로
+        choices: "NO_KEYS",
+        trial_duration: 200,
+        data: {disp_type: 'recon_target'} //reconstruction target
+    }
+    var reconstruction = {
+        type: jsPsychReconstruct_2D, //이 plugon은 교수님 github 참조
+        horizontal_step_size: 25,
+        vertical_step_size: 25,   //공간을 25X25 grid로 나눔 > 625개 자극이라서
+        image_path: jsPsych.timelineVariable('space_path'),
+        image_format: 'webp',        
+        canvas_shape: 'circle',  //reconstruction의 공간 모양이 원형 > feature space를 원형으로 제한했다.
+        uncertainty_range: false, //불확실성 범위는 표시 안함 > 원형의 크기
+        data: { //이 trial에서 저장할 정보
+            disp_type: 'reconstruction',
+            key_feature: jsPsych.timelineVariable('key_feature'),
+            position: jsPsych.timelineVariable('position'),
+            label: jsPsych.timelineVariable('label'),
+            answer_coord: jsPsych.timelineVariable('stim_coord'),
+            answer: jsPsych.timelineVariable('stim_idx'),
+            space_rotation: space_rot
+        }  
+    }
+    for(r=0; r<n_round_test; r++){   //test round생성
+        this['test_main'+(r+1)] = {
+            timeline: [fixation, target_display, blank, reconstruction],
+            timeline_variables: testing_cond_by_round[r],
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_round_test; r++){
+        this['transfer_main'+(r+1)] = {
+            timeline: [fixation, target_display, blank, reconstruction],
+            timeline_variables: transfer_cond_by_round[r],
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_round_test; r++){     
+        if(r!=(n_round_test-1)){
+            this['test_main_break'+(r+1)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round '+(r+1)+'.</br>'+
+                'You have '+(n_round_test-r-1)+' more round(s) to go.</br>'+  
+                'Take a break and press the button to proceed.</br></br></div>',                    
+                choices: ['start'],
+                data: {disp_type: 'learning_main_break'}
+            }
+        } else {
+            this['test_main_break'+(r+1)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round'+(r+1)+'.</br>'+
+                'Take a break and press the button to proceed.</br></br></div>',                    
+                choices: ['start'],
+                data: {disp_type: 'learning_main_break'}
+            }
+
+        }                       
+    }
+
+    // ** reconstruction prac ** //
+    var test_prac = {
+        timeline: [fixation, target_display, blank, reconstruction],  //reconstruction trial sequence와 같음
+        timeline_variables: _.shuffle(pcond.memory).slice(0,3) //pcond.memory는 practice condition 객체 안에 연습용 자극 리스트 만듬, slice(0,3)는 앞의 3개만 사용하는 것
+    }
+    var test_prac2main = {  //연습 끝났다는 안내 화면
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<div style="font-size:20px;">Practice is done. Now move on to the main trials.</div>',
+        choices: ['start'],
+        data: {disp_type: 'test_pract2main'}
+    }
+
+    // ** transfer learn ** //    
+    var transfer_learning = {
+        timeline: [fixation, learn_display], // without feedback
+        timeline_variables: econd.transfer_learning,
+        randomize_order: true
+    };
+
+    // ** consent ** //여기서 동의서 띄움
+    var consent = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: function(){                            
+          var html = 
+          '<p area-selected="font-size:15px;"> Press Agree to participate in the experiment.</p>'+                          
+          '<embed src="stimuli/consent_online_credit.pdf" style="width:80vw; height:70vh;"></embed>' //이 부분이 pdf띄운 코드
+          return html;
+        },
+        choices: ['Agree'],        
+        data: {disp_type: 'consent_page'}   
+    }
+
+    // ** demographic page ** //
+    var gender_options = ['Male', 'Female', 'Other'];
+    // var handed_option = ['Right', 'Left', 'ambidextrous'];
+    var demographic_page = {
+        type: jsPsychSurveyHtmlForm,
+        preamble: '<p><b>Before starting, we would like to collect basic information below.</b></p>',
+        html: '<p style="font-size:12pt;"> Gender: '+
+            '<input name="gender" type="radio" value="male"  required/><label for="male">Male</label>'+
+            '<input name="gender" type="radio" value="female"  required/><label for="female">Female</label>'+
+            '<input name="gender" type="radio" value="other"  required/><label for="other">Other</label></br>'+
+            // age
+            'Age: <input name="age" type="text"/></br>'+
+            'Please respond to the following quetions by checking "Yes" or "No": </br>'+
+            // lenses
+            '</br>Do you wear corrective lenses?: '+
+            '<input name="lense" type="radio" value="yes" required/><label for="yes">Yes</label>'+
+            '<input name="lense" type="radio" value="no" required/><label for="no">No</label>'+
+            '</br>If yes, specify glasses or contacts:  <input name="lensetype" type="text" /></br>'+  
+            // color blindness              
+            '</br>Do you experience color blindness?: '+
+            '<input name="color" type="radio" value="yes" required/><label for="yes">Yes</label>'+
+            '<input name="color" type="radio" value="no" required/><label for="no">No</label></br></p>',
+        data: {
+            disp_type: 'demographic_info'
+        }
+    }
+
+    // ** blank ** //
+    var blank = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: " ",
+        choices: "NO_KEYS",
+        trial_duration: 1000,
+        data: {disp_type: 'blank'}
+    }
+
+    // ** debrief question  ** //
+    var survey = {
+        type: jsPsychSurveyText,
+        preamble: "<p><b>All sessions are over! Thanks for participating.</br>"+
+            "We'll appreciate it if you share your participation experience below.</b></p>",
+        questions: [
+            {prompt: 'Do you have any guess about the purpose of this study is?', name: 'Purpuse', rows: 5},
+            {prompt: 'Did you use any rules when classifying the rooms? If yes, please describe it.', name: 'Rule', rows: 5},
+            {prompt: 'If you have any other feedback about this experiment, please tell us!', name: 'Feedback', rows: 5}
+        ],
+        data: {disp_type: 'hypothesis_guess'}
+    }   
+
+    // ** debrief letter ** //
+    var debrief_page = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: function(){                            
+            var html = 
+            '<p area-selected="font-size:15px;"> Thank you for participating! </br> You can leave this page.</p>'+                          
+            '<embed src="stimuli/debrief_letter.pdf" style="width:80vw; height:70vh;"></embed>'
+            return html;
+        },
+        choices: "NO_KEYS",        
+        data: {disp_type: 'debrief_page'}            
+    }
+
+    var save_data = {  //여기서 데이터 저장함
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: '<p>We are saving your data. Do not leave this page.</p>',
+      choices: "NO_KEYS",
+      trial_duration: 3000,
+      data: { // random rotation angle saving                
+          disp_type: 'saving_display'
+      },            
+      on_finish: function(){  
+        // jsPsych.data.displayData() 
+        // send data to firebase!                                 
+        var tmp = new Uint32Array(1);  //암호학적으로 안전한 랜덤 숫자 생성해서 같은 participant가 여러 번 실험해도 데이터 경로가 겹치지 않게 하려고 함
+        tmp = window.crypto.getRandomValues(tmp)
+        var dbpath = firebase.auth().currentUser.uid+'/'+tmp;
+        firebase.database().ref(dbpath).set({                          
+        data: JSON.parse( JSON.stringify( jsPsych.data.get().values() ) ),                            
+        interaction_data:JSON.parse( JSON.stringify( jsPsych.data.getInteractionData().values() ) ),
+        date: Date()
+        });                          
+      }           
+    }
+
+    // ** timeline ** //
+    timeline = [];  
+    timeline.push({
+        type: jsPsychFullscreen,
+        fullscreen_mode: true,
+        delay_after: 0,
+        data: {disp_type: 'fullscreen-in'}
+    });
+    timeline.push(preload_inst);
+    timeline.push(consent);
+    timeline.push(demographic_page);    
+    timeline.push(inst_welcome);
+    // ** learning           
+    timeline.push(inst_session1);
+    timeline.push(preload_learning);
+    timeline.push(learn_main1);
+    timeline.push(learn_main_break1);
+    timeline.push(learn_main2);
+    timeline.push(learn_main_break2);
+    timeline.push(learn_main3);
+    timeline.push(learn_main_break3);
+    timeline.push(learn_main4);
+    timeline.push(learn_main_break4);
+    timeline.push(learn_main5);
+    timeline.push(learn_main_break5);
+    // ** memory reconstruction    
+    timeline.push(inst_session2); 
+    timeline.push(preload_learning);
+    timeline.push(test_prac);
+    timeline.push(test_prac2main);    
+    timeline.push(test_main1);
+    timeline.push(test_main_break1);
+    timeline.push(test_main2);
+    timeline.push(test_main_break2);
+    timeline.push(test_main3);
+    timeline.push(test_main_break3);
+    timeline.push(test_main4);
+    timeline.push(test_main_break4);
+    timeline.push(test_main5);
+    timeline.push(test_main_break5);
+    // ** transfer-memory reconstruction
+    timeline.push(preload_transfer);
+    timeline.push(inst_session3);
+    timeline.push(transfer_main1);
+    timeline.push(test_main_break1);
+    timeline.push(transfer_main2);
+    timeline.push(test_main_break2);    
+    timeline.push(transfer_main3);
+    timeline.push(test_main_break3);
+    timeline.push(transfer_main4);
+    timeline.push(test_main_break4);     
+    timeline.push(transfer_main5);
+    timeline.push(test_main_break5);      
+    // ** transfer-learning
+    timeline.push(inst_session4);    
+    timeline.push(transfer_learning);
+    timeline.push(blank);
+    // ** debriefing question
+    timeline.push(survey);
+    timeline.push(save_data);
+    // ** end
+    timeline.push({
+        type: jsPsychFullscreen,
+        fullscreen_mode: false,
+        delay_after: 0,
+        data: {disp_type: 'fullscreen-out'}
+    });
+    
+    timeline.push(debrief_page);
+
+    jsPsych.run(timeline);
+    // function startExperiment(){
+    //     jsPsych.run(timeline);
+    // }
+    
+    
+</script>
+</html>

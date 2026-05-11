@@ -11,8 +11,8 @@
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.1.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.2"></script>
-    <script src="plugin-reconstruct-2D.js"></script>
-    <script src="make_condition.js"></script>
+    <script src="plugin-reconstruct-2D.js"></script> 
+    <script src="make_condition3.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-database.js"></script>   
@@ -20,27 +20,24 @@
 </head>
 <body></body>
 
-
 <script type="text/javascript">
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyCUok7hM8TZEmhA_JGoYLoYkPkAwmYmZWI",
-    authDomain: "scenecp-transfer2026.firebaseapp.com",
-    databaseURL: "https://scenecp-transfer2026-default-rtdb.firebaseio.com",
-    projectId: "scenecp-transfer2026",
-    storageBucket: "scenecp-transfer2026.firebasestorage.app",
-    messagingSenderId: "382658751067",
-    appId: "1:382658751067:web:043fa14aae52e9466c2d7e"
-  };
+    // Firebase set up
+    const firebaseConfig = {
+        apiKey: "AIzaSyAnc9seZOPUVEB8sHynN_ohEjk_AC3ZF2s",
+        authDomain: "scenecp-transfer.firebaseapp.com",
+        projectId: "scenecp-transfer",
+        storageBucket: "scenecp-transfer.appspot.com",
+        messagingSenderId: "560772576439",
+        appId: "1:560772576439:web:f21d145cd5c3b450990932"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-
-  // login anonymous user
-  firebase.auth().signInAnonymously().catch(function(error) {
-    var errorCode = error.code;
-    var errorMessage = error.message;
-  });
+    // login anonymous user
+    firebase.auth().signInAnonymously().catch(function(error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+    });      
 </script>
 
 <script>
@@ -51,11 +48,11 @@
     var cat_label = ['set1', 'set2']
     var random_cat_label = _.sample(cat_label, 2)
 
-    //수정2 : room_set 파일 바꿈 
+    //수정2 : room_set 파일 바꿈 & 연습 자극 바꿈
     var room_set = ['fix_bedroom_lighting13_set1', 'fix_bedroom_lighting13_set2']
     var learning_set = room_set[0];
     var transfer_set = room_set[1];
-    var practice_set = 'practice_bedroom_set2'
+    var practice_set = 'bedroom_wood-lighting_set2'
     var space_rot = 0; //Math.random()*360; 
     var n_round_learning = 5;
     var econd = make_condition(key_feature, random_cat_label, learning_set, n_round_learning, transfer_set);
@@ -78,7 +75,7 @@
         data: {disp_type: 'preload_inst'}
     }
     var images_learning = [];
-    for (var i=0; i<625; i++){
+    for (var i=0; i<289; i++){   //수정: 25바이25 -> 625, 20바이20 -> 400
         images_learning.push("stimuli/"+learning_set+"/"+("000000"+i).slice(-6)+".webp")
     }
     images_learning.push("stimuli/"+learning_set+"/"+"999999.webp")
@@ -88,7 +85,7 @@
         data: {disp_type: 'preload_learning'}
     }
     var images_transfer = [];    
-    for (var i=0; i<625; i++){
+    for (var i=0; i<289; i++){   //수정: 25바이25 -> 625, 20바이20 -> 400
         images_transfer.push("stimuli/"+transfer_set+"/"+("000000"+i).slice(-6)+".webp")
     }    
     images_transfer.push("stimuli/"+transfer_set+"/"+"999999.webp")
@@ -97,16 +94,7 @@
         images: images_transfer,
         data: {disp_type: 'preload_transfer'}
     }
-    var images_practice = [];    
-    for (var i=0; i<625; i++){
-        images_practice.push("stimuli/"+practice_set+"/"+("000000"+i).slice(-6)+".webp")
-    }   
-    images_practice.push("stimuli/"+practice_set+"/"+"999999.webp")
-    var preload_practice = {
-        type: jsPsychPreload, 
-        images: images_practice,
-        data: {disp_type: 'preload_practice'}
-    }
+    
     
     // ** instruction ** //
     var inst_welcome = {
@@ -192,12 +180,13 @@
     // var learning_prac = { // include or not? 
     //     timeline: [learn_display, feedback_display],
     //     timeline_variables: _.shuffle(pcond.learning.r1).slice(0,10),
-    //     randomize_order: true
+    //     randomize_ordr: true
     // }
     for(r=0; r<n_round_learning; r++){
         this['learn_main'+(r+1)] = {
             timeline: [learn_display, feedback_display],
-            timeline_variables: econd.learning['r'+(r+1)],
+            //수정: timeline_variables: econd.learning['r'+(r+1)],
+            timeline_variables: _.shuffle(econd.learning['r'+(r+1)]).slice(0,5),
             randomize_order: true
         }
     }
@@ -246,12 +235,12 @@
     }
     var reconstruction = {
         type: jsPsychReconstruct_2D,
-        horizontal_step_size: 25,
-        vertical_step_size: 25,
+        horizontal_step_size: 17, //수정: 25 or 20 or 17
+        vertical_step_size: 17,   //수정: 25 or 20 or 17
         image_path: jsPsych.timelineVariable('space_path'),
         image_format: 'webp',        
         canvas_shape: 'circle',
-        uncertainty_range: true,
+        uncertainty_range: false,  //수정: true -> false
         data: {
             disp_type: 'reconstruction',
             key_feature: jsPsych.timelineVariable('key_feature'),
@@ -266,13 +255,15 @@
         this['test_main'+(r+1)] = {
             timeline: [fixation, target_display, blank, reconstruction],
             timeline_variables: testing_cond_by_round[r],
+            //수정: timeline_variables: _.shuffle(testing_cond_by_round[r]).slice(0,3),
             randomize_order: true
         }
     }
     for(r=0; r<n_round_test; r++){
         this['transfer_main'+(r+1)] = {
-            timeline: [fixation, target_display, blank, reconstruction],
+            timeline: [fixation, target_display, blank], //reconstruction],
             timeline_variables: transfer_cond_by_round[r],
+            //수정: timeline_variables: _.shuffle(transfer_cond_by_round[r]).slice(0,3),
             randomize_order: true
         }
     }
@@ -415,71 +406,71 @@
 
     // ** timeline ** //
     timeline = [];  
-    //timeline.push({
-    //    type: jsPsychFullscreen,
-    //    fullscreen_mode: true,
-    //    delay_after: 0,
-    //    data: {disp_type: 'fullscreen-in'}
-    //});
-    // timeline.push(preload_inst);
-    // timeline.push(consent);
+    timeline.push({
+        type: jsPsychFullscreen,
+        fullscreen_mode: true,
+        delay_after: 0,
+        data: {disp_type: 'fullscreen-in'}
+    });
+    timeline.push(preload_inst);
+    timeline.push(consent);
     //timeline.push(demographic_page);    
-    // timeline.push(inst_welcome);
+    timeline.push(inst_welcome);
     // ** learning           
-    // timeline.push(inst_session1);
-    // timeline.push(preload_learning);
-    // timeline.push(learn_main1);
-    // timeline.push(learn_main_break1);
-    // timeline.push(learn_main2);
-    // timeline.push(learn_main_break2);
-    // timeline.push(learn_main3);
-    // timeline.push(learn_main_break3);
-    // timeline.push(learn_main4);
-    // timeline.push(learn_main_break4);
-    // timeline.push(learn_main5);
-    // timeline.push(learn_main_break5);
+    timeline.push(inst_session1);
+    timeline.push(preload_learning);
+    timeline.push(learn_main1);
+    timeline.push(learn_main_break1);
+    timeline.push(learn_main2);
+    timeline.push(learn_main_break2);
+    timeline.push(learn_main3);
+    timeline.push(learn_main_break3);
+    timeline.push(learn_main4);
+    timeline.push(learn_main_break4);
+    timeline.push(learn_main5);
+    timeline.push(learn_main_break5);
     // ** memory reconstruction    
-    // timeline.push(inst_session2); 
-    // timeline.push(preload_practice);
-    // timeline.push(test_prac);
-    // timeline.push(test_prac2main);    
-    // timeline.push(test_main1);
-    // timeline.push(test_main_break1);
-    // timeline.push(test_main2);
-    // timeline.push(test_main_break2);
-    // timeline.push(test_main3);
-    // timeline.push(test_main_break3);
-    // timeline.push(test_main4);
-    // timeline.push(test_main_break4);
-    // timeline.push(test_main5);
-    // timeline.push(test_main_break5);
-    // // ** transfer-memory reconstruction
-    // timeline.push(preload_transfer);
-    // timeline.push(inst_session3);
-    // timeline.push(transfer_main1);
-    // timeline.push(test_main_break1);
-    // timeline.push(transfer_main2);
-    // timeline.push(test_main_break2);    
-    // timeline.push(transfer_main3);
-    // timeline.push(test_main_break3);
-    // timeline.push(transfer_main4);
-    // timeline.push(test_main_break4);     
-    // timeline.push(transfer_main5);
-    // timeline.push(test_main_break5);      
-    // // ** transfer-learning
-    // timeline.push(inst_session4);    
-    // timeline.push(transfer_learning);
-    // timeline.push(blank);
+    timeline.push(inst_session2); 
+    timeline.push(preload_learning);
+    timeline.push(test_prac);
+    timeline.push(test_prac2main);    
+    timeline.push(test_main1);
+    timeline.push(test_main_break1);
+    timeline.push(test_main2);
+    timeline.push(test_main_break2);
+    timeline.push(test_main3);
+    timeline.push(test_main_break3);
+    timeline.push(test_main4);
+    timeline.push(test_main_break4);
+    timeline.push(test_main5);
+    timeline.push(test_main_break5);
+    // ** transfer-memory reconstruction
+    timeline.push(preload_transfer);
+    timeline.push(inst_session3);
+    timeline.push(transfer_main1);
+    timeline.push(test_main_break1);
+    timeline.push(transfer_main2);
+    timeline.push(test_main_break2);    
+    timeline.push(transfer_main3);
+    timeline.push(test_main_break3);
+    timeline.push(transfer_main4);
+    timeline.push(test_main_break4);     
+    timeline.push(transfer_main5);
+    timeline.push(test_main_break5);      
+    // ** transfer-learning
+    timeline.push(inst_session4);    
+    timeline.push(transfer_learning);
+    timeline.push(blank);
     // ** debriefing question
-    //timeline.push(survey);
-    timeline.push(save_data);
+    timeline.push(survey);
+    //timeline.push(save_data);
     // ** end
-    // timeline.push({
-    //     type: jsPsychFullscreen,
-    //     fullscreen_mode: false,
-    //     delay_after: 0,
-    //     data: {disp_type: 'fullscreen-out'}
-    // });
+    timeline.push({
+        type: jsPsychFullscreen,
+        fullscreen_mode: false,
+        delay_after: 0,
+        data: {disp_type: 'fullscreen-out'}
+    });
     
     timeline.push(debrief_page);
 
