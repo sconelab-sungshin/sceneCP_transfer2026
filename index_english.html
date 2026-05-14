@@ -395,13 +395,20 @@
       on_finish: function(){  
         // jsPsych.data.displayData() 
         // send data to firebase!                                 
-        var tmp = new Uint32Array(1);
-        tmp = window.crypto.getRandomValues(tmp)
-        var dbpath = firebase.auth().currentUser.uid+'/'+tmp;
-        firebase.database().ref(dbpath).set({                          
-        data: JSON.parse( JSON.stringify( jsPsych.data.get().values() ) ),                            
-        interaction_data:JSON.parse( JSON.stringify( jsPsych.data.getInteractionData().values() ) ),
-        date: Date()
+        const timestamp =
+            now.getFullYear().toString() +
+            String(now.getMonth() + 1).padStart(2, '0') +
+            String(now.getDate()).padStart(2, '0') +
+            String(now.getHours()).padStart(2, '0') +
+            String(now.getMinutes()).padStart(2, '0') +
+            String(now.getSeconds()).padStart(2, '0') +
+            String(now.getMilliseconds()).padStart(3, '0');
+        
+        const save_id = timestamp + "_" + Math.floor(Math.random()*10000);
+        firebase.database().ref(save_id).set({                          
+            data: jsPsych.data.get().values(),                            
+            interaction_data:jsPsych.data.getInteractionData().values(),
+            date: Date()
         });                          
       }           
     }
@@ -474,11 +481,11 @@
     // timeline.push(transfer_main5);
     // timeline.push(test_main_break5);      
     // // ** transfer-learning
-    // timeline.push(inst_session4);    
-    // timeline.push(transfer_learning);
-    // timeline.push(blank);
-    // // ** debriefing question
-    // // timeline.push(survey);
+    timeline.push(inst_session4);    
+    timeline.push(transfer_learning);
+    timeline.push(blank);
+    // ** debriefing question
+    timeline.push(survey);
     timeline.push(save_data);
     // ** end
     timeline.push({
