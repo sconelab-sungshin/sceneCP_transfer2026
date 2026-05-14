@@ -394,7 +394,8 @@
       },            
       on_finish: function(){  
         // jsPsych.data.displayData() 
-        // send data to firebase!                                 
+        // send data to firebase!  
+        const now = new Date();                               
         const timestamp =
             now.getFullYear().toString() +
             String(now.getMonth() + 1).padStart(2, '0') +
@@ -408,7 +409,7 @@
         firebase.database().ref(save_id).set({                          
             data: jsPsych.data.get().values(),                            
             interaction_data:jsPsych.data.getInteractionData().values(),
-            date: Date()
+            date: now.toString()
         });                          
       }           
     }
