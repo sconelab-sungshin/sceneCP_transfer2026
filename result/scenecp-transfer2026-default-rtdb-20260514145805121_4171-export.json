@@ -1,0 +1,30 @@
+{
+  "data": [
+    {
+      "disp_type": "consent_page",
+      "internal_node_id": "0.0-0.0",
+      "response": 0,
+      "rt": 1672,
+      "stimulus": "<p area-selected=\"font-size:15px;\"> Press Agree to participate in the experiment.</p><embed src=\"stimuli/consent_online_credit.pdf\" style=\"width:80vw; height:70vh;\"></embed>",
+      "time_elapsed": 1674,
+      "trial_index": 0,
+      "trial_type": "html-button-response"
+    },
+    {
+      "disp_type": "saving_display",
+      "internal_node_id": "0.0-1.0",
+      "stimulus": "<p>We are saving your data. Do not leave this page.</p>",
+      "time_elapsed": 4676,
+      "trial_index": 1,
+      "trial_type": "html-keyboard-response"
+    }
+  ],
+  "date": "Thu May 14 2026 14:58:05 GMT+0900 (Korean Standard Time)",
+  "interaction_data": [
+    {
+      "event": "blur",
+      "time": 4275,
+      "trial": 1
+    }
+  ]
+}

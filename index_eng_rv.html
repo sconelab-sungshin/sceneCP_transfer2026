@@ -62,7 +62,6 @@
     var pcond = make_condition(key_feature, random_cat_label, practice_set, n_round_learning, transfer_set); //5trial
     // chunking (for breaks for test blocks)
     var n_round_test = 5;
-    //여기 다시 생각해보기 -> learaning 이후에는 안해도 되는게 맞을지
     var testing_cond_by_round = _.chunk(_.shuffle(econd.memory),econd.memory.length/n_round_test);
     var transfer_cond_by_round = _.chunk(_.shuffle(econd.transfer_memory),econd.transfer_memory.length/n_round_test);
 
@@ -432,18 +431,18 @@
     //timeline.push(demographic_page);    
     timeline.push(inst_welcome);
     //** learning           
-    // timeline.push(inst_session1);
-    // timeline.push(preload_learning);
-    // timeline.push(learn_main1);
-    // timeline.push(learn_main_break1);
-    // timeline.push(learn_main2);
-    // timeline.push(learn_main_break2);
-    // timeline.push(learn_main3);
-    // timeline.push(learn_main_break3);
-    // timeline.push(learn_main4);
-    // timeline.push(learn_main_break4);
-    // timeline.push(learn_main5);
-    // timeline.push(learn_main_break5);
+    timeline.push(inst_session1);
+    timeline.push(preload_learning);
+    timeline.push(learn_main1);
+    timeline.push(learn_main_break1);
+    timeline.push(learn_main2);
+    timeline.push(learn_main_break2);
+    timeline.push(learn_main3);
+    timeline.push(learn_main_break3);
+    timeline.push(learn_main4);
+    timeline.push(learn_main_break4);
+    timeline.push(learn_main5);
+    timeline.push(learn_main_break5);
     //** memory reconstruction    
     timeline.push(inst_session2); 
     timeline.push(preload_learning2);
