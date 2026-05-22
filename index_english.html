@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.1.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.2"></script>
     <script src="plugin-reconstruct-2D.js"></script> 
-    <script src="make_condition3.js"></script>
+    <script src="make_condition.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-database.js"></script>   
@@ -23,12 +23,13 @@
 <script type="text/javascript">
     // Firebase set up
     const firebaseConfig = {
-        apiKey: "AIzaSyAnc9seZOPUVEB8sHynN_ohEjk_AC3ZF2s",
-        authDomain: "scenecp-transfer.firebaseapp.com",
-        projectId: "scenecp-transfer",
-        storageBucket: "scenecp-transfer.appspot.com",
-        messagingSenderId: "560772576439",
-        appId: "1:560772576439:web:f21d145cd5c3b450990932"
+        apiKey: "AIzaSyCUok7hM8TZEmhA_JGoYLoYkPkAwmYmZWI",
+        authDomain: "scenecp-transfer2026.firebaseapp.com",
+        databaseURL: "https://scenecp-transfer2026-default-rtdb.firebaseio.com",
+        projectId: "scenecp-transfer2026",
+        storageBucket: "scenecp-transfer2026.firebasestorage.app",
+        messagingSenderId: "382658751067",
+        appId: "1:382658751067:web:043fa14aae52e9466c2d7e"
     };
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
@@ -95,6 +96,15 @@
         data: {disp_type: 'preload_transfer'}
     }
     
+    // // * Prolific information * // -> GS: 프롤리픽에 업로드 시에 활성화 시키기
+    // var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
+    // var study_id = jsPsych.data.getURLVariable('STUDY_ID');
+    // var session_id = jsPsych.data.getURLVariable('SESSION_ID');
+    // jsPsych.data.addProperties({
+    //     subject_id: subject_id,
+    //     study_id: study_id,
+    //     session_id: session_id
+    // });
     
     // ** instruction ** //
     var inst_welcome = {
@@ -341,7 +351,12 @@
             // color blindness
             '</br>Do you experience color blindness?: '+
             '<input name="color" type="radio" value="yes" required/><label for="yes">Yes</label>'+
-            '<input name="color" type="radio" value="no" required/><label for="no">No</label></br>',
+            '<input name="color" type="radio" value="no" required/><label for="no">No</label></br>'+
+            // neurological conditions
+            '</br>Do you have (or have you had) any neurological conditions?: '+
+            '<input name="neuro" type="radio" value="yes" required/><label for="yes">Yes</label>'+
+            '<input name="neuro" type="radio" value="no" required/><label for="no">No</label>'+
+            '</br>If yes, please specify type and location: <input name="neurotype" type="text" /></br></p>',
         data: {
             disp_type: 'demographic_info'
         }
@@ -367,20 +382,7 @@
             {prompt: 'If you have any other feedback about this experiment, please tell us!', name: 'Feedback', rows: 5}
         ],
         data: {disp_type: 'hypothesis_guess'}
-    }   
-
-    // ** debrief letter ** //
-    var debrief_page = {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: function(){                            
-            var html = 
-            '<p area-selected="font-size:15px;"> Thank you for participating! </br> You can leave this page.</p>'+                          
-            '<embed src="stimuli/debrief_letter.pdf" style="width:80vw; height:70vh;"></embed>'
-            return html;
-        },
-        choices: "NO_KEYS",        
-        data: {disp_type: 'debrief_page'}            
-    }
+    }      
 
     var save_data = {
       type: jsPsychHtmlKeyboardResponse,
@@ -392,78 +394,100 @@
       },            
       on_finish: function(){  
         // jsPsych.data.displayData() 
-        // send data to firebase!                                 
-        var tmp = new Uint32Array(1);
-        tmp = window.crypto.getRandomValues(tmp)
-        var dbpath = firebase.auth().currentUser.uid+'/'+tmp;
-        firebase.database().ref(dbpath).set({                          
-        data: JSON.parse( JSON.stringify( jsPsych.data.get().values() ) ),                            
-        interaction_data:JSON.parse( JSON.stringify( jsPsych.data.getInteractionData().values() ) ),
-        date: Date()
+        // send data to firebase!  
+        const now = new Date();                               
+        const timestamp =
+            now.getFullYear().toString() +
+            String(now.getMonth() + 1).padStart(2, '0') +
+            String(now.getDate()).padStart(2, '0') +
+            String(now.getHours()).padStart(2, '0') +
+            String(now.getMinutes()).padStart(2, '0') +
+            String(now.getSeconds()).padStart(2, '0') +
+            String(now.getMilliseconds()).padStart(3, '0');
+        
+        const save_id = timestamp + "_" + Math.floor(Math.random()*10000);
+        firebase.database().ref(save_id).set({                          
+            data: jsPsych.data.get().values(),                            
+            interaction_data:jsPsych.data.getInteractionData().values(),
+            date: now.toString()
         });                          
       }           
     }
 
+    // debriefing letter 
+    var debrief_page = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: function(){                            
+            var html = 
+            '<p area-selected="font-size:15px;"> Thank you for participating!</p>'+      
+            '<p><a href="https://app.prolific.co/submissions/complete?cc=1C85CD1B">Click here to return to Prolific and complete the study</a>.</p>'+ // GS: prolific 설정 후 URL을 바꿔야 함             
+            '<embed src="stimuli/debrief_letter.pdf" style="width:80vw; height:70vh;"></embed>'
+            return html;
+        },
+        choices: "NO_KEYS",        
+        data: {disp_type: 'debriefing_page'}            
+    } 
+
     // ** timeline ** //
     timeline = [];  
-    timeline.push({
-        type: jsPsychFullscreen,
-        fullscreen_mode: true,
-        delay_after: 0,
-        data: {disp_type: 'fullscreen-in'}
-    });
-    timeline.push(preload_inst);
+    // timeline.push({
+    //     type: jsPsychFullscreen,
+    //     fullscreen_mode: true,
+    //     delay_after: 0,
+    //     data: {disp_type: 'fullscreen-in'}
+    // });
+    // timeline.push(preload_inst);
     timeline.push(consent);
-    //timeline.push(demographic_page);    
-    timeline.push(inst_welcome);
-    // ** learning           
-    timeline.push(inst_session1);
-    timeline.push(preload_learning);
-    timeline.push(learn_main1);
-    timeline.push(learn_main_break1);
-    timeline.push(learn_main2);
-    timeline.push(learn_main_break2);
-    timeline.push(learn_main3);
-    timeline.push(learn_main_break3);
-    timeline.push(learn_main4);
-    timeline.push(learn_main_break4);
-    timeline.push(learn_main5);
-    timeline.push(learn_main_break5);
-    // ** memory reconstruction    
-    timeline.push(inst_session2); 
-    timeline.push(preload_learning);
-    timeline.push(test_prac);
-    timeline.push(test_prac2main);    
-    timeline.push(test_main1);
-    timeline.push(test_main_break1);
-    timeline.push(test_main2);
-    timeline.push(test_main_break2);
-    timeline.push(test_main3);
-    timeline.push(test_main_break3);
-    timeline.push(test_main4);
-    timeline.push(test_main_break4);
-    timeline.push(test_main5);
-    timeline.push(test_main_break5);
-    // ** transfer-memory reconstruction
-    timeline.push(preload_transfer);
-    timeline.push(inst_session3);
-    timeline.push(transfer_main1);
-    timeline.push(test_main_break1);
-    timeline.push(transfer_main2);
-    timeline.push(test_main_break2);    
-    timeline.push(transfer_main3);
-    timeline.push(test_main_break3);
-    timeline.push(transfer_main4);
-    timeline.push(test_main_break4);     
-    timeline.push(transfer_main5);
-    timeline.push(test_main_break5);      
-    // ** transfer-learning
-    timeline.push(inst_session4);    
-    timeline.push(transfer_learning);
-    timeline.push(blank);
-    // ** debriefing question
-    timeline.push(survey);
-    //timeline.push(save_data);
+    // //timeline.push(demographic_page);    
+    // timeline.push(inst_welcome);
+    // // ** learning           
+    // timeline.push(inst_session1);
+    // timeline.push(preload_learning);
+    // timeline.push(learn_main1);
+    // timeline.push(learn_main_break1);
+    // timeline.push(learn_main2);
+    // timeline.push(learn_main_break2);
+    // timeline.push(learn_main3);
+    // timeline.push(learn_main_break3);
+    // timeline.push(learn_main4);
+    // timeline.push(learn_main_break4);
+    // timeline.push(learn_main5);
+    // timeline.push(learn_main_break5);
+    // // ** memory reconstruction    
+    // timeline.push(inst_session2); 
+    // timeline.push(preload_learning);
+    // timeline.push(test_prac);
+    // timeline.push(test_prac2main);    
+    // timeline.push(test_main1);
+    // timeline.push(test_main_break1);
+    // timeline.push(test_main2);
+    // timeline.push(test_main_break2);
+    // timeline.push(test_main3);
+    // timeline.push(test_main_break3);
+    // timeline.push(test_main4);
+    // timeline.push(test_main_break4);
+    // timeline.push(test_main5);
+    // timeline.push(test_main_break5);
+    // // ** transfer-memory reconstruction
+    // timeline.push(preload_transfer);
+    // timeline.push(inst_session3);
+    // timeline.push(transfer_main1);
+    // timeline.push(test_main_break1);
+    // timeline.push(transfer_main2);
+    // timeline.push(test_main_break2);    
+    // timeline.push(transfer_main3);
+    // timeline.push(test_main_break3);
+    // timeline.push(transfer_main4);
+    // timeline.push(test_main_break4);     
+    // timeline.push(transfer_main5);
+    // timeline.push(test_main_break5);      
+    // // ** transfer-learning
+    // timeline.push(inst_session4);    
+    // timeline.push(transfer_learning);
+    // timeline.push(blank);
+    // // ** debriefing question
+    // timeline.push(survey);
+    timeline.push(save_data);
     // ** end
     timeline.push({
         type: jsPsychFullscreen,
