@@ -55,18 +55,15 @@
     var transfer_set = room_set[1];
     var practice_set = 'bedroom_wood-lighting_set2'
     var space_rot = 0; //Math.random()*360;    
-    var grid_size = 17;
+    var grid_size = 25;
     var circle_on = true;
     var econd = make_condition_flexible(
         grid_size, key_feature, random_cat_label, learning_set, transfer_set, circle_on
     );
-    var pcond = make_condition(key_feature, random_cat_label, practice_set, n_round_learning, transfer_set); //5trial
-    // chunking (for breaks for test blocks)
-    var n_round_test = 5;
-    //여기 다시 생각해보기 -> learaning 이후에는 안해도 되는게 맞을지
-    var testing_cond_by_round = _.chunk(_.shuffle(econd.memory),econd.memory.length/n_round_test);
-    var transfer_cond_by_round = _.chunk(_.shuffle(econd.transfer_memory),econd.transfer_memory.length/n_round_test);
-
+    var pcond = make_condition_flexible(
+        grid_size, key_feature, random_cat_label, practice_set, practice_set, circle_on
+    )
+    var n_block = econd.n_block
     // ** initialize ** //
     const jsPsych = initJsPsych();
 
@@ -190,25 +187,27 @@
         choices: "NO_KEYS",
         data: {disp_type: "learn_feedback"}
     }
-    // var learning_prac = { // include or not? 
-    //     timeline: [learn_display, feedback_display],
-    //     timeline_variables: _.shuffle(pcond.learning.r1).slice(0,10),
-    //     randomize_ordr: true
-    // }
-    for(r=0; r<n_round_learning; r++){
+
+    var learning_prac = { // include or not? 
+        timeline: [learn_display, feedback_display],
+        timeline_variables: pcond.learning.b1.slice(0,10),
+        randomize_ordr: true
+    }
+
+    for(r=0; r<n_block; r++){
         this['learn_main'+(r+1)] = {
             timeline: [learn_display, feedback_display],
-            //수정: timeline_variables: econd.learning['r'+(r+1)],
-            timeline_variables: _.shuffle(econd.learning['r'+(r+1)]).slice(0,5),
+            timeline_variables: econd.learning['b'+(r+1)],
+            // timeline_variables: _.shuffle(econd.learning['r'+(r+1)]).slice(0,5),
             randomize_order: true
         }
     }
-    for(r=0; r<n_round_learning; r++){     
-        if(r!=(n_round_learning-1)){
+    for(r=0; r<n_block; r++){     
+        if(r!=(n_block-1)){
             this['learn_main_break'+(r+1)] = {                
                 type: jsPsychHtmlButtonResponse,
                 stimulus: '<div style="font-size:20px;">This is the end of round '+(r+1)+'.</br>'+
-                    'You have '+(n_round_learning-r-1)+' more round(s) to go.</br>'+
+                    'You have '+(n_block-r-1)+' more round(s) to go.</br>'+
                     'Take a break and press the button to proceed.</br></br></div>',               
                 choices: ['start'],
                 data: {disp_type: 'learn_main_break'}
@@ -264,28 +263,28 @@
             space_rotation: space_rot
         }  
     }
-    for(r=0; r<n_round_test; r++){
+    for(r=0; r<n_block; r++){
         this['test_main'+(r+1)] = {
             timeline: [fixation, target_display, blank, reconstruction],
-            timeline_variables: testing_cond_by_round[r],
+            timeline_variables: econd.memory['b'+(r+1)],
             //수정: timeline_variables: _.shuffle(testing_cond_by_round[r]).slice(0,3),
             randomize_order: true
         }
     }
-    for(r=0; r<n_round_test; r++){
+    for(r=0; r<n_block; r++){
         this['transfer_main'+(r+1)] = {
             timeline: [fixation, target_display, blank], //reconstruction],
-            timeline_variables: transfer_cond_by_round[r],
+            timeline_variables: econd.transfer_memory['b'+(r+1)],
             //수정: timeline_variables: _.shuffle(transfer_cond_by_round[r]).slice(0,3),
             randomize_order: true
         }
     }
-    for(r=0; r<n_round_test; r++){     
-        if(r!=(n_round_test-1)){
+    for(r=0; r<n_block; r++){     
+        if(r!=(n_block-1)){
             this['test_main_break'+(r+1)] = {                
                 type: jsPsychHtmlButtonResponse,
                 stimulus: '<div style="font-size:20px;">This is the end of round '+(r+1)+'.</br>'+
-                'You have '+(n_round_learning-r-1)+' more round(s) to go.</br>'+
+                'You have '+(n_block-r-1)+' more round(s) to go.</br>'+
                 'Take a break and press the button to proceed.</br></br></div>',                    
                 choices: ['start'],
                 data: {disp_type: 'learning_main_break'}
@@ -305,7 +304,8 @@
     // ** reconstruction prac ** //
     var test_prac = {
         timeline: [fixation, target_display, blank, reconstruction],
-        timeline_variables: _.shuffle(pcond.memory).slice(0,3)
+        // timeline_variables: _.shuffle(pcond.memory).slice(0,3)
+        timeline_variables: pcond.memory.b1.slice(0, 3),
     }
     var test_prac2main = {
         type: jsPsychHtmlButtonResponse,
@@ -317,7 +317,7 @@
 
     var transfer_learning = {
         timeline: [fixation, learn_display], // without feedback
-        timeline_variables: econd.transfer_learning,
+        timeline_variables: econd.transfer_learning.b1,
         randomize_order: true
     };
 

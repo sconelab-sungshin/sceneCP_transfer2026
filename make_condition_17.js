@@ -52,7 +52,7 @@ function make_condition(relevant_ftr, random_cat_label, learning_set, n_round, t
                 learning_stim.group2[i].push(relevant_ftr_idx.group2[i]+'_'+irrelevant_ftr_idx.group2[i][j]) //애네도 같음
             }
         }
-    }else if(relevant_ftr == 'wood'){ 
+    }else if(relevant_ftr == 'lighting'){ 
         // group1
         for(i=0; i<relevant_ftr_idx.group1.length; i++){
             for(j=0; j<irrelevant_ftr_idx.group1[i].length; j++){
