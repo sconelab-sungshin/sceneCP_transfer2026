@@ -65,6 +65,8 @@
         grid_size, key_feature, random_cat_label, practice_set, practice_set, circle_on
     )
     var n_block = econd.n_block
+
+
     // ** initialize ** //
     const jsPsych = initJsPsych();
 
@@ -201,9 +203,9 @@
         data: {disp_type: "learn_feedback"}
     }
 
-    var learning_prac = { // include or not? <- GS: 실험 시간이 너무 길어지지 않는다면, 넣는게 좋을 것 같아요 (5trial정도도 충분).
+    var learning_prac = { // include or not? <- GS: 실험 시간이 너무 길어지지 않는다면, 넣는게 좋을 것 같아요 (5 trial정도도 충분).
         timeline: [learn_display, feedback_display],
-        timeline_variables: pcond.learning.b1.slice(0,10),
+        timeline_variables: pcond.learning.b1.slice(0,5),
         randomize_ordr: true
     }
 
@@ -452,15 +454,15 @@
     //     delay_after: 0,
     //     data: {disp_type: 'fullscreen-in'}
     // });
-    // timeline.push(preload_inst);
-    // timeline.push(consent);
-    // timeline.push(demographic_page);    
-    // timeline.push(inst_welcome);
+    timeline.push(preload_inst);
+    timeline.push(consent);
+    timeline.push(demographic_page);    
+    timeline.push(inst_welcome);
     // // ** learning           
-    // timeline.push(inst_session1);
-    // timeline.push(preload_learning);
-    // timeline.push(learn_main1);
-    // timeline.push(learn_main_break1);
+    timeline.push(inst_session1);
+    timeline.push(preload_learning);
+    timeline.push(learn_main1);
+    timeline.push(learn_main_break1);
     // timeline.push(learn_main2);
     // timeline.push(learn_main_break2);
     // timeline.push(learn_main3);

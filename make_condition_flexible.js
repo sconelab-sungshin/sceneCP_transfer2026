@@ -1,16 +1,11 @@
-// [호출 예시] 
-// var cond21 = make_condition_flexible(21, 'view', ['A','B'], 'set1', 5, 'set2');
-// var cond19 = make_condition_flexible(19, 'view', ['A','B'], 'set1', 5, 'set2');
-// var cond17 = make_condition_flexible(17, 'view', ['A','B'], 'set1', 5, 'set2');
-
 function make_condition_flexible(
     space_size, relevant_ftr, random_cat_label, 
     learning_set, transfer_set, circle_on) {
     
     // 최대 스페이스 계산 ***************************************************************** //   
-    // ..... 1. 학습 스페이스
     var grid_limit = 12 // (25x25로 고정; 실험 자극 후보군 중 가장 큰 스페이스)
 
+    // ..... 1. 학습 스페이스
     var learning_space = []
     var learning_limit = grid_limit - 1 // boundary를 빗겨나간 grid
     var learning_range = _.range(-learning_limit, learning_limit+1, 2)
@@ -28,15 +23,15 @@ function make_condition_flexible(
             recon_space.push([x,y]);
         }        
     }
-    // ..... 3. 학습전이 확인 스페이스
-    var trans_space = []
-    var trans_limit = grid_limit - 1 // boundary 빗겨나간 grid(단 grid_limit 자체는 불포함하도록)
-    var trans_range = _.range(-trans_limit, trans_limit+1, 2)
-    for(var y of trans_range){
-        for(var x of trans_range){
-            trans_space.push([x,y]);
-        }        
-    }
+    // // ..... 3. 학습전이 확인 스페이스
+    // var trans_space = []
+    // var trans_limit = grid_limit - 1 // boundary 빗겨나간 grid(단 grid_limit 자체는 불포함하도록)
+    // var trans_range = _.range(-trans_limit, trans_limit+1, 2)
+    // for(var y of trans_range){
+    //     for(var x of trans_range){
+    //         trans_space.push([x,y]);
+    //     }        
+    // }
 
     // 자극 좌표 계산 ***************************************************************** //
 
@@ -99,7 +94,7 @@ function make_condition_flexible(
         return out;
     }    
 
-    // ..... 1. 전체 자극 스페이스 
+    // 전체 자극 스페이스 
     var space_limit = Math.floor(space_size/2)
 
     var space_coord = [];  
@@ -114,7 +109,7 @@ function make_condition_flexible(
 
     // console.log(space_coord)
     // console.log(learning_coord)
-    // console.log(recon_coord)   
+    // console.log(recon_coord)
     
     
     // cond화 시키기 *************************************************************************** //
@@ -235,7 +230,7 @@ function make_condition_flexible(
         0
     );    
 
-    // transfer learning ************************************************************************* //
+    // transfer learning (confirmation) ************************************************************************* //
     function makeTransLearningCoord(learning_coord, relevant_ftr) {
         var rel_values = {
             group1: [-7, -5, -3],
@@ -290,7 +285,7 @@ function make_condition_flexible(
         0
     ); 
 
-    console.log(trans_learning_cond)
+    // console.log(trans_learning_cond)
     
 
     return {
