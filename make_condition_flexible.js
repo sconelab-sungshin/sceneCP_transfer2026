@@ -82,7 +82,7 @@ function make_condition_flexible(
                     out.boundary.push(x+"_"+y);
                 }
             }
-            if(relevant_ftr == 'lighting'){ // horizontal boundary
+            if(relevant_ftr == 'wood'){ // horizontal boundary
                 if(y < boundary){
                     out.group1.push(x+"_"+y);
                 }
@@ -134,7 +134,8 @@ function make_condition_flexible(
                     label: random_cat_label[_.indexOf(group_type, g)],
                     stim_coord: coord,
                     stim_idx: idx,
-                    img_path: "stimuli/" + stim_set_name + "/" + ("000000" + idx).slice(-6) + ".webp"
+                    img_path: "stimuli/" + stim_set_name + "/" + ("000000" + idx).slice(-6) + ".webp",
+                    space_path: "stimuli/" + stim_set_name + "/"                    
                 });
             });
         });
@@ -172,7 +173,7 @@ function make_condition_flexible(
             if (relevant_ftr == "view") {
                 dist = Math.abs(x - boundary);
             } 
-            else if (relevant_ftr == "lighting") {
+            else if (relevant_ftr == "wood") {
                 dist = Math.abs(y - boundary);
             }
 
@@ -260,7 +261,7 @@ function make_condition_flexible(
                     relevant_value = x;
                     irrelevant_value = y;
                 } 
-                else if (relevant_ftr == "lighting") {
+                else if (relevant_ftr == "wood") {
                     relevant_value = y;
                     irrelevant_value = x;
                 }

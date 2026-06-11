@@ -45,18 +45,19 @@
     
     // ** design ** //
     //수정1 : lighting -> view
-    var key_feature = 'lighting'
+    var key_feature = 'wood' // GS: 새 자극 세트에서: view x wood, transfer: lighting 이렇게 인거죠?
     var cat_label = ['set1', 'set2']
     var random_cat_label = _.sample(cat_label, 2)
 
     //수정2 : room_set 파일 바꿈 & 연습 자극 바꿈
-    var room_set = ['fix_bedroom_lighting13_set1', 'fix_bedroom_lighting13_set2']
+    var room_set = ['fix_bedroom_lighting13_set1_17x17', 'fix_bedroom_lighting13_set2_17x17']
     var learning_set = room_set[0];
     var transfer_set = room_set[1];
-    var practice_set = 'bedroom_wood-lighting_set2'
+    var practice_set = 'practice_bedroom_set2'
     var space_rot = 0; //Math.random()*360;    
-    var grid_size = 25;
+    var grid_size = 17;
     var circle_on = true;
+    if(circle_on){ var canvas_shape = 'circle' }
     var econd = make_condition_flexible(
         grid_size, key_feature, random_cat_label, learning_set, transfer_set, circle_on
     );
@@ -68,6 +69,7 @@
     const jsPsych = initJsPsych();
 
     // ** image preloading ** //
+    // 지시문, learning, transfer, prac set 프리로딩함
     var preload_inst = {
         type: jsPsychPreload,
         images: ['stimuli/instruction/welcome_p1.png', 'stimuli/instruction/session1_p2.png',
@@ -76,7 +78,8 @@
         data: {disp_type: 'preload_inst'}
     }
     var images_learning = [];
-    for (var i=0; i<289; i++){   //수정: 25바이25 -> 625, 20바이20 -> 400
+    var num_img = grid_size*grid_size
+    for (var i=0; i<num_img; i++){   //수정: 25바이25 -> 625, 20바이20 -> 400
         images_learning.push("stimuli/"+learning_set+"/"+("000000"+i).slice(-6)+".webp")
     }
     images_learning.push("stimuli/"+learning_set+"/"+"999999.webp")
@@ -86,7 +89,7 @@
         data: {disp_type: 'preload_learning'}
     }
     var images_transfer = [];    
-    for (var i=0; i<289; i++){   //수정: 25바이25 -> 625, 20바이20 -> 400
+    for (var i=0; i<num_img; i++){   //수정: 25바이25 -> 625, 20바이20 -> 400
         images_transfer.push("stimuli/"+transfer_set+"/"+("000000"+i).slice(-6)+".webp")
     }    
     images_transfer.push("stimuli/"+transfer_set+"/"+"999999.webp")
@@ -95,7 +98,17 @@
         images: images_transfer,
         data: {disp_type: 'preload_transfer'}
     }
-    
+    var images_prac = [];
+    for (var i=0; i<num_img; i++){   //수정: 25바이25 -> 625, 20바이20 -> 400
+        images_prac.push("stimuli/"+practice_set+"/"+("000000"+i).slice(-6)+".webp")
+    }
+    images_prac.push("stimuli/"+practice_set+"/"+"999999.webp")
+    var preload_prac = {
+        type: jsPsychPreload, 
+        images: images_prac, 
+        data: {disp_type: 'preload_practice'}
+    }
+
     // // * Prolific information * // -> GS: 프롤리픽에 업로드 시에 활성화 시키기
     // var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
     // var study_id = jsPsych.data.getURLVariable('STUDY_ID');
@@ -188,7 +201,7 @@
         data: {disp_type: "learn_feedback"}
     }
 
-    var learning_prac = { // include or not? 
+    var learning_prac = { // include or not? <- GS: 실험 시간이 너무 길어지지 않는다면, 넣는게 좋을 것 같아요 (5trial정도도 충분).
         timeline: [learn_display, feedback_display],
         timeline_variables: pcond.learning.b1.slice(0,10),
         randomize_ordr: true
@@ -247,11 +260,11 @@
     }
     var reconstruction = {
         type: jsPsychReconstruct_2D,
-        horizontal_step_size: 17, //수정: 25 or 20 or 17
-        vertical_step_size: 17,   //수정: 25 or 20 or 17
+        horizontal_step_size: grid_size, //수정: 25 or 20 or 17 GS: 변수화해두면 편해요.
+        vertical_step_size: grid_size,   //수정: 25 or 20 or 17
         image_path: jsPsych.timelineVariable('space_path'),
         image_format: 'webp',        
-        canvas_shape: 'circle',
+        canvas_shape: canvas_shape, // GS: 마찬가지로 변수화
         uncertainty_range: false,  //수정: true -> false
         data: {
             disp_type: 'reconstruction',
@@ -273,7 +286,7 @@
     }
     for(r=0; r<n_block; r++){
         this['transfer_main'+(r+1)] = {
-            timeline: [fixation, target_display, blank], //reconstruction],
+            timeline: [fixation, target_display, blank, reconstruction],
             timeline_variables: econd.transfer_memory['b'+(r+1)],
             //수정: timeline_variables: _.shuffle(transfer_cond_by_round[r]).slice(0,3),
             randomize_order: true
@@ -440,8 +453,8 @@
     //     data: {disp_type: 'fullscreen-in'}
     // });
     // timeline.push(preload_inst);
-    timeline.push(consent);
-    // //timeline.push(demographic_page);    
+    // timeline.push(consent);
+    // timeline.push(demographic_page);    
     // timeline.push(inst_welcome);
     // // ** learning           
     // timeline.push(inst_session1);
@@ -458,11 +471,12 @@
     // timeline.push(learn_main_break5);
     // // ** memory reconstruction    
     // timeline.push(inst_session2); 
-    // timeline.push(preload_learning);
+    // timeline.push(preload_prac);
     // timeline.push(test_prac);
-    // timeline.push(test_prac2main);    
-    // timeline.push(test_main1);
-    // timeline.push(test_main_break1);
+    timeline.push(test_prac2main);  
+    timeline.push(preload_learning);  
+    timeline.push(test_main1);
+    timeline.push(test_main_break1);
     // timeline.push(test_main2);
     // timeline.push(test_main_break2);
     // timeline.push(test_main3);
@@ -471,11 +485,11 @@
     // timeline.push(test_main_break4);
     // timeline.push(test_main5);
     // timeline.push(test_main_break5);
-    // // ** transfer-memory reconstruction
-    // timeline.push(preload_transfer);
-    // timeline.push(inst_session3);
-    // timeline.push(transfer_main1);
-    // timeline.push(test_main_break1);
+    // ** transfer-memory reconstruction
+    timeline.push(preload_transfer);
+    timeline.push(inst_session3);
+    timeline.push(transfer_main1);
+    timeline.push(test_main_break1);
     // timeline.push(transfer_main2);
     // timeline.push(test_main_break2);    
     // timeline.push(transfer_main3);
@@ -484,20 +498,20 @@
     // timeline.push(test_main_break4);     
     // timeline.push(transfer_main5);
     // timeline.push(test_main_break5);      
-    // // ** transfer-learning
-    // timeline.push(inst_session4);    
-    // timeline.push(transfer_learning);
-    // timeline.push(blank);
+    // ** transfer-learning
+    timeline.push(inst_session4);    
+    timeline.push(transfer_learning);
+    timeline.push(blank);
     // // ** debriefing question
     // timeline.push(survey);
     timeline.push(save_data);
-    // ** end
-    timeline.push({
-        type: jsPsychFullscreen,
-        fullscreen_mode: false,
-        delay_after: 0,
-        data: {disp_type: 'fullscreen-out'}
-    });
+    // // ** end
+    // timeline.push({
+    //     type: jsPsychFullscreen,
+    //     fullscreen_mode: false,
+    //     delay_after: 0,
+    //     data: {disp_type: 'fullscreen-out'}
+    // });
     
     timeline.push(debrief_page);
 
