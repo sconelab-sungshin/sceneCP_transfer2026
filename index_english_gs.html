@@ -44,12 +44,10 @@
 <script>
     
     // ** design ** //
-    //수정1 : lighting -> view
-    var key_feature = 'wood' // GS: 새 자극 세트에서: view x wood, transfer: lighting 이렇게 인거죠?
+    var key_feature = 'wood'
     var cat_label = ['set1', 'set2']
     var random_cat_label = _.sample(cat_label, 2)
 
-    //수정2 : room_set 파일 바꿈 & 연습 자극 바꿈
     var room_set = ['fix_bedroom_lighting13_set1_17x17', 'fix_bedroom_lighting13_set2_17x17']
     var learning_set = room_set[0];
     var transfer_set = room_set[1];
@@ -74,14 +72,14 @@
     // 지시문, learning, transfer, prac set 프리로딩함
     var preload_inst = {
         type: jsPsychPreload,
-        images: ['stimuli/instruction/welcome_p1.png', 'stimuli/instruction/session1_p2.png',
-        'stimuli/instruction/session2_p3.png', 'stimuli/instruction/session3_p4.png',
-        'stimuli/instruction/session4_p5.png'],
+        images: ['stimuli/instruction/welcome_p1_rv.png', 'stimuli/instruction/session1_p2_rv.png',
+        'stimuli/instruction/session2_p3_rv.png', 'stimuli/instruction/session3_p4_rv.png',
+        'stimuli/instruction/session4_p5_rv.png'],
         data: {disp_type: 'preload_inst'}
     }
     var images_learning = [];
     var num_img = grid_size*grid_size
-    for (var i=0; i<num_img; i++){   //수정: 25바이25 -> 625, 20바이20 -> 400
+    for (var i=0; i<num_img; i++){   
         images_learning.push("stimuli/"+learning_set+"/"+("000000"+i).slice(-6)+".webp")
     }
     images_learning.push("stimuli/"+learning_set+"/"+"999999.webp")
@@ -91,7 +89,7 @@
         data: {disp_type: 'preload_learning'}
     }
     var images_transfer = [];    
-    for (var i=0; i<num_img; i++){   //수정: 25바이25 -> 625, 20바이20 -> 400
+    for (var i=0; i<num_img; i++){  
         images_transfer.push("stimuli/"+transfer_set+"/"+("000000"+i).slice(-6)+".webp")
     }    
     images_transfer.push("stimuli/"+transfer_set+"/"+"999999.webp")
@@ -101,7 +99,7 @@
         data: {disp_type: 'preload_transfer'}
     }
     var images_prac = [];
-    for (var i=0; i<num_img; i++){   //수정: 25바이25 -> 625, 20바이20 -> 400
+    for (var i=0; i<num_img; i++){   
         images_prac.push("stimuli/"+practice_set+"/"+("000000"+i).slice(-6)+".webp")
     }
     images_prac.push("stimuli/"+practice_set+"/"+"999999.webp")
@@ -124,31 +122,31 @@
     // ** instruction ** //
     var inst_welcome = {
         type: jsPsychHtmlButtonResponse,
-        stimulus: '<img src="stimuli/instruction/welcome_p1.png" style="width:1000px"></img>',
+        stimulus: '<img src="stimuli/instruction/welcome_p1_rv.png" style="width:1000px"></img>',
         choices: ['next'],
         data: {disp_type: 'inst_welcome'}
     }
     var inst_session1 = {
         type: jsPsychHtmlButtonResponse,
-        stimulus: '<img src="stimuli/instruction/session1_p2.png" style="width:1000px"></img>',
+        stimulus: '<img src="stimuli/instruction/session1_p2_rv.png" style="width:1000px"></img>',
         choices: ['start'],
         data: {disp_type: 'inst_session1'}
     }
     var inst_session2 = {
         type: jsPsychHtmlButtonResponse,
-        stimulus: '<img src="stimuli/instruction/session2_p3.png" style="width:1000px"></img>',
+        stimulus: '<img src="stimuli/instruction/session2_p3_rv.png" style="width:1000px"></img>',
         choices: ['start'],
         data: {disp_type: 'inst_session2'}
     }
     var inst_session3 = {
         type: jsPsychHtmlButtonResponse,
-        stimulus: '<img src="stimuli/instruction/session3_p4.png" style="width:1000px"></img>',
+        stimulus: '<img src="stimuli/instruction/session3_p4_rv.png" style="width:1000px"></img>',
         choices: ['start'],
         data: {disp_type: 'inst_session3'}
     }
     var inst_session4 = {
         type: jsPsychHtmlButtonResponse,
-        stimulus: '<img src="stimuli/instruction/session4_p5.png" style="width:1000px"></img>',
+        stimulus: '<img src="stimuli/instruction/session4_p5_rv.png" style="width:1000px"></img>',
         choices: ['start'],
         data: {disp_type: 'inst_session4'}
     }
@@ -203,7 +201,7 @@
         data: {disp_type: "learn_feedback"}
     }
 
-    var learning_prac = { // include or not? <- GS: 실험 시간이 너무 길어지지 않는다면, 넣는게 좋을 것 같아요 (5 trial정도도 충분).
+    var learning_prac = { //include - depends on the exp duration 
         timeline: [learn_display, feedback_display],
         timeline_variables: pcond.learning.b1.slice(0,5),
         randomize_ordr: true
@@ -262,12 +260,12 @@
     }
     var reconstruction = {
         type: jsPsychReconstruct_2D,
-        horizontal_step_size: grid_size, //수정: 25 or 20 or 17 GS: 변수화해두면 편해요.
-        vertical_step_size: grid_size,   //수정: 25 or 20 or 17
+        horizontal_step_size: grid_size, 
+        vertical_step_size: grid_size,  
         image_path: jsPsych.timelineVariable('space_path'),
         image_format: 'webp',        
-        canvas_shape: canvas_shape, // GS: 마찬가지로 변수화
-        uncertainty_range: false,  //수정: true -> false
+        canvas_shape: canvas_shape, 
+        uncertainty_range: false,  
         data: {
             disp_type: 'reconstruction',
             key_feature: jsPsych.timelineVariable('key_feature'),
@@ -282,7 +280,6 @@
         this['test_main'+(r+1)] = {
             timeline: [fixation, target_display, blank, reconstruction],
             timeline_variables: econd.memory['b'+(r+1)],
-            //수정: timeline_variables: _.shuffle(testing_cond_by_round[r]).slice(0,3),
             randomize_order: true
         }
     }
@@ -290,7 +287,6 @@
         this['transfer_main'+(r+1)] = {
             timeline: [fixation, target_display, blank, reconstruction],
             timeline_variables: econd.transfer_memory['b'+(r+1)],
-            //수정: timeline_variables: _.shuffle(transfer_cond_by_round[r]).slice(0,3),
             randomize_order: true
         }
     }
@@ -319,7 +315,6 @@
     // ** reconstruction prac ** //
     var test_prac = {
         timeline: [fixation, target_display, blank, reconstruction],
-        // timeline_variables: _.shuffle(pcond.memory).slice(0,3)
         timeline_variables: pcond.memory.b1.slice(0, 3),
     }
     var test_prac2main = {
@@ -328,8 +323,8 @@
         choices: ['start'],
         data: {disp_type: 'test_pract2main'}
     }
-    // ** transfer learn ** //    
 
+    // ** transfer learn ** //    
     var transfer_learning = {
         timeline: [fixation, learn_display], // without feedback
         timeline_variables: econd.transfer_learning.b1,
@@ -342,7 +337,7 @@
         stimulus: function(){                            
           var html = 
           '<p area-selected="font-size:15px;"> Press Agree to participate in the experiment.</p>'+  
-          '<embed src="stimuli/consent_online_credit.pdf" style="width:80vw; height:70vh;"></embed>'
+          '<embed src="stimuli/연구참여동의서.pdf" style="width:80vw; height:70vh;"></embed>'
           return html;
         },
         choices: ['Agree'],        
@@ -439,7 +434,7 @@
             var html = 
             '<p area-selected="font-size:15px;"> Thank you for participating!</p>'+      
             '<p><a href="https://app.prolific.co/submissions/complete?cc=1C85CD1B">Click here to return to Prolific and complete the study</a>.</p>'+ // GS: prolific 설정 후 URL을 바꿔야 함             
-            '<embed src="stimuli/debrief_letter.pdf" style="width:80vw; height:70vh;"></embed>'
+            '<embed src="stimuli/debrief_letter2.pdf" style="width:80vw; height:70vh;"></embed>'
             return html;
         },
         choices: "NO_KEYS",        
