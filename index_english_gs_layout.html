@@ -17,6 +17,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-database.js"></script>   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.2/underscore.min.js" integrity="sha512-6mqtVtgbfCJNW9phBE9ZIsviePVIHAv5No5hF+Sw/A/FSCQTUaHQkKykXhr5IpNhJkvcqftZLIe+T6nsCro5fw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-virtual-chinrest@2.0.3"></script>
+
 </head>
 <body></body>
 
@@ -51,8 +53,8 @@
     var room_set = ['fix_bedroom_lighting13_set1_17x17', 'fix_bedroom_lighting13_set2_17x17']
     var learning_set = room_set[0];
     var transfer_set = room_set[1];
-    var practice_set = 'practice_bedroom_set2'
-    var space_rot = 0; //Math.random()*360;    
+    var practice_set = 'practice_bedroom_set2_17x17'
+    var space_rot = 0; // Math.random()*360;    
     var grid_size = 17;
     var circle_on = true;
     if(circle_on){ var canvas_shape = 'circle' }
@@ -108,6 +110,15 @@
         images: images_prac, 
         data: {disp_type: 'preload_practice'}
     }
+
+    // ** resizing ** // 
+    var chinrest_trial = {
+        type: jsPsychVirtualChinrest,
+        blindspot_reps: 0,
+        resize_units: "cm",
+        pixels_per_unit: 50,
+        item_path: null
+    };
 
     // // * Prolific information * // -> GS: 프롤리픽에 업로드 시에 활성화 시키기
     // var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
@@ -435,7 +446,7 @@
         stimulus: function(){                            
           var html = 
           '<p area-selected="font-size:15px;"> Press Agree to participate in the experiment.</p>'+  
-          '<embed src="stimuli\연구참여동의서.pdf" style="width:80vw; height:70vh;"></embed>'
+          '<embed src="stimuli/연구참여동의서.pdf" style="width:80vw; height:70vh;"></embed>'
           return html;
         },
         choices: ['Agree'],        
@@ -532,7 +543,7 @@
             var html = 
             '<p area-selected="font-size:15px;"> Thank you for participating!</p>'+      
             '<p><a href="https://app.prolific.co/submissions/complete?cc=1C85CD1B">Click here to return to Prolific and complete the study</a>.</p>'+ // GS: prolific 설정 후 URL을 바꿔야 함             
-            '<embed src="stimuli\debrief_letter2.pdf" style="width:80vw; height:70vh;"></embed>'
+            '<embed src="stimuli/debrief_letter2.pdf" style="width:80vw; height:70vh;"></embed>'
             return html;
         },
         choices: "NO_KEYS",        
@@ -541,21 +552,22 @@
 
     // ** timeline ** //
     timeline = [];  
-    // timeline.push({
-    //     type: jsPsychFullscreen,
-    //     fullscreen_mode: true,
-    //     delay_after: 0,
-    //     data: {disp_type: 'fullscreen-in'}
-    // });
+    timeline.push({
+        type: jsPsychFullscreen,
+        fullscreen_mode: true,
+        delay_after: 0,
+        data: {disp_type: 'fullscreen-in'}
+    });
     // timeline.push(preload_inst);
     timeline.push(consent);
-    //timeline.push(demographic_page);    
+    timeline.push(demographic_page);
+    timeline.push(chinrest_trial);     
     timeline.push(inst_welcome);
-    // // ** learning           
+    // ** learning ** //          
     timeline.push(inst_session1);
-    //timeline.push(preload_learning);
-    //timeline.push(learn_main1);
-    //timeline.push(learn_main_break1);
+    timeline.push(preload_learning);
+    timeline.push(learn_main1);
+    // timeline.push(learn_main_break1);
     // timeline.push(learn_main2);
     // timeline.push(learn_main_break2);
     // timeline.push(learn_main3);
@@ -564,13 +576,13 @@
     // timeline.push(learn_main_break4);
     // timeline.push(learn_main5);
     // timeline.push(learn_main_break5);
-    // // ** memory reconstruction    
+    // ** memory reconstruction    
     timeline.push(inst_session2); 
-    // timeline.push(preload_prac);
-    // timeline.push(test_prac);
-    // timeline.push(test_prac2main);  
-    // timeline.push(preload_learning);  
-    // timeline.push(test_main1);
+    timeline.push(preload_prac);
+    timeline.push(test_prac);
+    timeline.push(test_prac2main);  
+    timeline.push(preload_learning);  
+    timeline.push(test_main1);
     // timeline.push(test_main_break1);
     // timeline.push(test_main2);
     // timeline.push(test_main_break2);
@@ -581,9 +593,9 @@
     // timeline.push(test_main5);
     // timeline.push(test_main_break5);
     // ** transfer-memory reconstruction
-    // timeline.push(preload_transfer);
+    timeline.push(preload_transfer);
     timeline.push(inst_session3);
-    // timeline.push(transfer_main1);
+    timeline.push(transfer_main1);
     // timeline.push(test_main_break1);
     // timeline.push(transfer_main2);
     // timeline.push(test_main_break2);    
@@ -595,18 +607,18 @@
     // timeline.push(test_main_break5);      
     // ** transfer-learning
     timeline.push(inst_session4);    
-    // timeline.push(transfer_learning);
-    // timeline.push(blank);
-    // // ** debriefing question
-    // timeline.push(survey);
-    // timeline.push(save_data);
-    // // ** end
-    // timeline.push({
-    //     type: jsPsychFullscreen,
-    //     fullscreen_mode: false,
-    //     delay_after: 0,
-    //     data: {disp_type: 'fullscreen-out'}
-    // });
+    timeline.push(transfer_learning);
+    timeline.push(blank);
+    // ** debriefing question
+    timeline.push(survey);
+    timeline.push(save_data);
+    // ** end
+    timeline.push({
+        type: jsPsychFullscreen,
+        fullscreen_mode: false,
+        delay_after: 0,
+        data: {disp_type: 'fullscreen-out'}
+    });
     
     timeline.push(debrief_page);
 
