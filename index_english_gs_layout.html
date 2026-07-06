@@ -504,7 +504,22 @@
             {prompt: 'If you have any other feedback about this experiment, please tell us!', name: 'Feedback', rows: 5}
         ],
         data: {disp_type: 'hypothesis_guess'}
-    }      
+    } 
+
+    function replaceUndefinedWithNull(obj) {
+        if (Array.isArray(obj)) {
+            return obj.map(replaceUndefinedWithNull);
+        }
+        if (obj !== null && typeof obj === "object") {
+            const cleaned = {};
+            for (const key in obj) {
+            cleaned[key] =
+                obj[key] === undefined ? null : replaceUndefinedWithNull(obj[key]);
+            }
+            return cleaned;
+        }
+        return obj;
+        }
 
     var save_data = {
       type: jsPsychHtmlKeyboardResponse,
@@ -528,11 +543,15 @@
             String(now.getMilliseconds()).padStart(3, '0');
         
         const save_id = timestamp + "_" + Math.floor(Math.random()*10000);
-        firebase.database().ref(save_id).set({                          
-            data: jsPsych.data.get().values(),                            
-            interaction_data:jsPsych.data.getInteractionData().values(),
+        const saveData = replaceUndefinedWithNull(jsPsych.data.get().values());
+        const interactionData = replaceUndefinedWithNull(
+            jsPsych.data.getInteractionData().values()
+        );
+        firebase.database().ref(save_id).set({
+            data: saveData,
+            interaction_data: interactionData,
             date: now.toString()
-        });                          
+        });                    
       }           
     }
 
