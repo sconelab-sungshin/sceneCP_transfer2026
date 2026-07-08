@@ -50,12 +50,12 @@
     var cat_label = ['set1', 'set2']
     var random_cat_label = _.sample(cat_label, 2)
 
-    var room_set = ['fix_bedroom_lighting13_set1_17x17', 'fix_bedroom_lighting13_set2_17x17']
+    var room_set = ['fix_bedroom_lighting13_set1', 'fix_bedroom_lighting13_set2']
     var learning_set = room_set[0];
     var transfer_set = room_set[1];
-    var practice_set = 'practice_bedroom_set2_17x17'
+    var practice_set = 'practice_bedroom_set2_25x25'
     var space_rot = 0; // Math.random()*360;    
-    var grid_size = 17;
+    var grid_size = 25;
     var circle_on = true;
     if(circle_on){ var canvas_shape = 'circle' }
     var econd = make_condition_flexible(
@@ -560,13 +560,13 @@
     });
     // timeline.push(preload_inst);
     timeline.push(consent);
-    timeline.push(demographic_page);
+    // timeline.push(demographic_page);
     timeline.push(chinrest_trial);     
     timeline.push(inst_welcome);
     // ** learning ** //          
     timeline.push(inst_session1);
-    timeline.push(preload_learning);
-    timeline.push(learn_main1);
+    // timeline.push(preload_learning);
+    // timeline.push(learn_main1);
     // timeline.push(learn_main_break1);
     // timeline.push(learn_main2);
     // timeline.push(learn_main_break2);
@@ -578,11 +578,11 @@
     // timeline.push(learn_main_break5);
     // ** memory reconstruction    
     timeline.push(inst_session2); 
-    timeline.push(preload_prac);
-    timeline.push(test_prac);
-    timeline.push(test_prac2main);  
-    timeline.push(preload_learning);  
-    timeline.push(test_main1);
+    // timeline.push(preload_prac);
+    // timeline.push(test_prac);
+    // timeline.push(test_prac2main);  
+    // timeline.push(preload_learning);  
+    // timeline.push(test_main1);
     // timeline.push(test_main_break1);
     // timeline.push(test_main2);
     // timeline.push(test_main_break2);
@@ -593,9 +593,9 @@
     // timeline.push(test_main5);
     // timeline.push(test_main_break5);
     // ** transfer-memory reconstruction
-    timeline.push(preload_transfer);
+    // timeline.push(preload_transfer);
     timeline.push(inst_session3);
-    timeline.push(transfer_main1);
+    // timeline.push(transfer_main1);
     // timeline.push(test_main_break1);
     // timeline.push(transfer_main2);
     // timeline.push(test_main_break2);    
@@ -607,7 +607,7 @@
     // timeline.push(test_main_break5);      
     // ** transfer-learning
     timeline.push(inst_session4);    
-    timeline.push(transfer_learning);
+    // timeline.push(transfer_learning);
     timeline.push(blank);
     // ** debriefing question
     timeline.push(survey);
