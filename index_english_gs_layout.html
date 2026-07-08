@@ -55,7 +55,7 @@
     var transfer_set = room_set[1];
     var practice_set = 'practice_bedroom_set2_25x25'
     var space_rot = 0; // Math.random()*360;    
-    var grid_size = 25;
+    var grid_size = 17;
     var circle_on = true;
     if(circle_on){ var canvas_shape = 'circle' }
     var econd = make_condition_flexible(
@@ -504,7 +504,22 @@
             {prompt: 'If you have any other feedback about this experiment, please tell us!', name: 'Feedback', rows: 5}
         ],
         data: {disp_type: 'hypothesis_guess'}
-    }      
+    } 
+
+    function replaceUndefinedWithNull(obj) {
+        if (Array.isArray(obj)) {
+            return obj.map(replaceUndefinedWithNull);
+        }
+        if (obj !== null && typeof obj === "object") {
+            const cleaned = {};
+            for (const key in obj) {
+            cleaned[key] =
+                obj[key] === undefined ? null : replaceUndefinedWithNull(obj[key]);
+            }
+            return cleaned;
+        }
+        return obj;
+        }
 
     var save_data = {
       type: jsPsychHtmlKeyboardResponse,
@@ -516,6 +531,7 @@
       },            
       on_finish: function(){  
         // jsPsych.data.displayData() 
+
         // send data to firebase!  
         const now = new Date();                               
         const timestamp =
@@ -528,11 +544,15 @@
             String(now.getMilliseconds()).padStart(3, '0');
         
         const save_id = timestamp + "_" + Math.floor(Math.random()*10000);
-        firebase.database().ref(save_id).set({                          
-            data: jsPsych.data.get().values(),                            
-            interaction_data:jsPsych.data.getInteractionData().values(),
+        const saveData = replaceUndefinedWithNull(jsPsych.data.get().values());
+        const interactionData = replaceUndefinedWithNull(
+            jsPsych.data.getInteractionData().values()
+        );
+        firebase.database().ref(save_id).set({
+            data: saveData,
+            interaction_data: interactionData,
             date: now.toString()
-        });                          
+        });                    
       }           
     }
 
@@ -559,12 +579,12 @@
         data: {disp_type: 'fullscreen-in'}
     });
     // timeline.push(preload_inst);
-    timeline.push(consent);
+    // timeline.push(consent);
     // timeline.push(demographic_page);
-    timeline.push(chinrest_trial);     
-    timeline.push(inst_welcome);
-    // ** learning ** //          
-    timeline.push(inst_session1);
+    // timeline.push(chinrest_trial);     
+    // timeline.push(inst_welcome);
+    // // ** learning ** //          
+    // timeline.push(inst_session1);
     // timeline.push(preload_learning);
     // timeline.push(learn_main1);
     // timeline.push(learn_main_break1);
@@ -577,7 +597,7 @@
     // timeline.push(learn_main5);
     // timeline.push(learn_main_break5);
     // ** memory reconstruction    
-    timeline.push(inst_session2); 
+    // timeline.push(inst_session2); 
     // timeline.push(preload_prac);
     // timeline.push(test_prac);
     // timeline.push(test_prac2main);  
@@ -595,8 +615,8 @@
     // ** transfer-memory reconstruction
     // timeline.push(preload_transfer);
     timeline.push(inst_session3);
-    // timeline.push(transfer_main1);
-    // timeline.push(test_main_break1);
+    timeline.push(transfer_main1);
+    timeline.push(test_main_break1);
     // timeline.push(transfer_main2);
     // timeline.push(test_main_break2);    
     // timeline.push(transfer_main3);
@@ -605,9 +625,9 @@
     // timeline.push(test_main_break4);     
     // timeline.push(transfer_main5);
     // timeline.push(test_main_break5);      
-    // ** transfer-learning
+    // // ** transfer-learning
     timeline.push(inst_session4);    
-    // timeline.push(transfer_learning);
+    timeline.push(transfer_learning);
     timeline.push(blank);
     // ** debriefing question
     timeline.push(survey);
