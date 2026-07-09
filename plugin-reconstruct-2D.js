@@ -150,7 +150,7 @@ var jsPsychReconstruct_2D = (function (jspsych) {
           this.is_search = true;
           this.image_coord = this.find_param(e.clientX,e.clientY);  
           this.image_param = ("000000"+this.image_coord).slice(-6);  
-          this.init_display(this.image_param);                       
+          this.init_display(this.image_param);                
       }      
       search_confirm_event (e) {
           this.search_end = performance.now();
