@@ -50,12 +50,12 @@
     var cat_label = ['set1', 'set2']
     var random_cat_label = _.sample(cat_label, 2)
 
-    var room_set = ['fix_bedroom_lighting13_set1_21x21', 'fix_bedroom_lighting13_set2_21x21']
+    var room_set = ['fix_bedroom_lighting13_set1_17x17', 'fix_bedroom_lighting13_set2_17x17']
     var learning_set = room_set[0];
     var transfer_set = room_set[1];
-    var practice_set = 'practice_bedroom_set2_21x21'
+    var practice_set = 'practice_bedroom_set2_17x17'
     var space_rot = 0; // Math.random()*360;    
-    var grid_size = 21;
+    var grid_size = 17;
     var circle_on = true;
     if(circle_on){ var canvas_shape = 'circle' }
     var econd = make_condition_flexible(
@@ -591,7 +591,7 @@
     timeline.push(learn_main_break1);
     timeline.push(learn_main2);
     timeline.push(learn_main_break2);
-    timeline.push(learn_main3);
+    //timeline.push(learn_main3);
     // timeline.push(learn_main_break3);
     // timeline.push(learn_main4);
     // timeline.push(learn_main_break4);
@@ -607,7 +607,7 @@
     timeline.push(test_main_break1);
     timeline.push(test_main2);
     timeline.push(test_main_break2);
-    timeline.push(test_main3);
+    //timeline.push(test_main3);
     // timeline.push(test_main_break3);
     // timeline.push(test_main4);
     // timeline.push(test_main_break4);
@@ -620,7 +620,7 @@
     timeline.push(test_main_break1);
     timeline.push(transfer_main2);
     timeline.push(test_main_break2);    
-    timeline.push(transfer_main3);
+    //timeline.push(transfer_main3);
     // timeline.push(test_main_break3);
     // timeline.push(transfer_main4);
     // timeline.push(test_main_break4);     

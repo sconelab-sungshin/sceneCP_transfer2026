@@ -4,7 +4,7 @@ library(dplyr)
 library(purr)      #이건 여러 파일 사용할 때 
 
 ##### 2. JSON파일 읽기 #####
-json <- "C:/Users/박지윤/Documents/GitHub/sceneCP_transfer2026/demo_result_17.json"
+json <- "C:/Users/박지윤/Documents/GitHub/sceneCP_transfer2026/result/demo_result_21_2.json"
 
 json_raw <- fromJSON(json, flatten = TRUE)
 #str(json_raw)
@@ -27,7 +27,7 @@ session1 <- df %>%
   filter(trial_index < idx_session2) %>%
   select(answer, correct, key_feature, position, response, rt, stim_coord, stim_idx)  %>%
   mutate(session = "session1_learning",
-         space_size = "17x17") %>%
+         space_size = "21x21") %>%
   mutate(across(where(is.list), ~ sapply(., function(x) if(length(x) == 0) NA else x[[1]])))
 
 ##### 5. table 2 #####
@@ -37,7 +37,7 @@ session2 <- df %>%
          trial_index < idx_session3) %>%
   select(answer, answer_coord, key_feature, label, position, response, response_coord, search_rt, space_rotation) %>%
   mutate(session = "session2_reconstruction",
-         space_size = "17x17") %>%
+         space_size = "21x21") %>%
   mutate(across(where(is.list), ~ sapply(., function(x) if(length(x) == 0) NA else x[[1]])))
 
 ##### 6. table 3 #####
@@ -47,7 +47,7 @@ session3 <- df %>%
          trial_index < idx_session4) %>%
   select(answer, answer_coord, key_feature, label, position, response, response_coord, search_rt, space_rotation) %>%
   mutate(session = "session3_transfer_reconstruction",
-         space_size = "17x17") %>%
+         space_size = "21x21") %>%
   mutate(across(where(is.list), ~ sapply(., function(x) if(length(x) == 0) NA else x[[1]])))
 
 ##### 7. table 4 #####
@@ -56,7 +56,7 @@ session4 <- df %>%
   filter(trial_index > idx_session4) %>%
   select(answer, correct, key_feature, position, response, rt, stim_coord, stim_idx) %>%
   mutate(session = "session4_transfer_learning",
-         space_size = "17x17") %>%
+         space_size = "21x21") %>%
   mutate(across(where(is.list), ~ sapply(., function(x) if(length(x) == 0) NA else x[[1]])))
 
 ##### 8. check #####
@@ -74,10 +74,10 @@ session4 <- session4 %>% select(-trial_index)
 ##### 10. save as CSV #####
 save_dir <- "C:/Users/박지윤/Documents/GitHub/sceneCP_transfer2026"
 
-write.csv(session1, "demo_session1_17.csv", row.names = FALSE)
-write.csv(session2, "demo_session2_17.csv", row.names = FALSE)
-write.csv(session3, "demo_session3_17.csv", row.names = FALSE)
-write.csv(session4, "demo_session4_17.csv", row.names = FALSE)
+write.csv(session1, "demo_session1_21_2.csv", row.names = FALSE)
+write.csv(session2, "demo_session2_21_2.csv", row.names = FALSE)
+write.csv(session3, "demo_session3_21_2.csv", row.names = FALSE)
+write.csv(session4, "demo_session4_21_2.csv", row.names = FALSE)
 
 ##### 11. table check ##### 
 View(session1)
