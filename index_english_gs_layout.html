@@ -182,7 +182,7 @@
                     <strong>Please try to respond as accurately and quickly as possible.</strong><br>
                     If you do not responded within <strong>2 seconds</strong>, it will move on to the next image.
                 </p>
-                <p style="text-align:center; font-size:16px;">You will perform this task for <strong>120 images over 5 rounds.</strong></p>
+                <p style="text-align:center; font-size:16px;">You will perform this task for <strong>120 images over ${n_block*2} rounds.</strong></p>
             </div>`,
         choices: ['start'],
         data: {disp_type: 'inst_session1'}
@@ -203,7 +203,7 @@
                 <img src="stimuli/inst_session2.JPG" style="display:block; width:800px; max-width:100%; height:auto; margin:20px auto;"
 
                 <p style="text-align:center; font-size:16px; line-height:1.7;">
-                    This task will be repeated <strong>171 times, with 4 breaks.</strong><br>
+                    This task will be repeated <strong>171 times, with 3 breaks.</strong><br>
                     Before you begin, let's try <strong>3 practice trials.</strong>
                 </p>
             </div>`,
@@ -226,7 +226,7 @@
                 <img src="stimuli/inst_session3.JPG" style="display:block; width:800px; max-width:100%; height:auto; margin:20px auto;"
 
                 <p style="text-align:center; font-size:16px; line-height:1.7;">
-                    You will repeat this trial <strong>171 times</strong> and will be given <strong>4 breaks.</strong>
+                    You will repeat this trial <strong>171 times</strong> and will be given <strong>3 breaks.</strong>
                 </p>
             </div>`,
         choices: ['start'],
@@ -326,19 +326,38 @@
         }
     }
     for(r=0; r<n_block; r++){     
-        if(r!=(n_block-1)){
             this['learn_main_break'+(r+1)] = {                
                 type: jsPsychHtmlButtonResponse,
                 stimulus: '<div style="font-size:20px;">This is the end of round '+(r+1)+'.</br>'+
+                    'You have '+(n_block*2-r-1)+' more round(s) to go.</br>'+
+                    'Take a break and press the button to proceed.</br></br></div>',               
+                choices: ['start'],
+                data: {disp_type: 'learn_main_break'}
+            }                       
+    }
+
+    for(r=0; r<n_block; r++){
+        this['learn_main'+(r+3)] = {
+            timeline: [learn_display, feedback_display],
+            timeline_variables: econd.learning['b'+(r+1)],
+            // timeline_variables: _.shuffle(econd.learning['r'+(r+1)]).slice(0,5),
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_block; r++){     
+        if(r!=(n_block-1)){
+            this['learn_main_break'+(r+3)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round '+(r+3)+'.</br>'+
                     'You have '+(n_block-r-1)+' more round(s) to go.</br>'+
                     'Take a break and press the button to proceed.</br></br></div>',               
                 choices: ['start'],
                 data: {disp_type: 'learn_main_break'}
             }
         } else {
-            this['learn_main_break'+(r+1)] = {                
+            this['learn_main_break'+(r+3)] = {                
                 type: jsPsychHtmlButtonResponse,
-                stimulus: '<div style="font-size:20px;">This is the end of round'+(r+1)+'.</br>'+
+                stimulus: '<div style="font-size:20px;">This is the end of round'+(r+3)+'.</br>'+
                 'Take a break and press the button to move on to the next session.</br></br></div>',                    
                 choices: ['next'],
                 data: {disp_type: 'learn_main_break'}
@@ -346,6 +365,8 @@
 
         }                       
     }
+
+
     // ** reconstruction ** //
     var fixation = {
         type: jsPsychHtmlKeyboardResponse,
@@ -401,19 +422,45 @@
         }
     }
     for(r=0; r<n_block; r++){     
-        if(r!=(n_block-1)){
             this['test_main_break'+(r+1)] = {                
                 type: jsPsychHtmlButtonResponse,
                 stimulus: '<div style="font-size:20px;">This is the end of round '+(r+1)+'.</br>'+
+                'You have '+(n_block*2-r-1)+' more round(s) to go.</br>'+
+                'Take a break and press the button to proceed.</br></br></div>',                    
+                choices: ['start'],
+                data: {disp_type: 'learning_main_break'}
+            }                     
+    }
+
+
+for(r=0; r<n_block; r++){
+        this['test_main'+(r+3)] = {
+            timeline: [fixation, target_display, blank, reconstruction],
+            timeline_variables: econd.memory['b'+(r+1)],
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_block; r++){
+        this['transfer_main'+(r+3)] = {
+            timeline: [fixation, target_display, blank, reconstruction],
+            timeline_variables: econd.transfer_memory['b'+(r+1)],
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_block; r++){     
+        if(r!=(n_block-1)){
+            this['test_main_break'+(r+3)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round '+(r+3)+'.</br>'+
                 'You have '+(n_block-r-1)+' more round(s) to go.</br>'+
                 'Take a break and press the button to proceed.</br></br></div>',                    
                 choices: ['start'],
                 data: {disp_type: 'learning_main_break'}
             }
         } else {
-            this['test_main_break'+(r+1)] = {                
+            this['test_main_break'+(r+3)] = {                
                 type: jsPsychHtmlButtonResponse,
-                stimulus: '<div style="font-size:20px;">This is the end of round'+(r+1)+'.</br>'+
+                stimulus: '<div style="font-size:20px;">This is the end of round'+(r+3)+'.</br>'+
                 'Take a break and press the button to proceed.</br></br></div>',                    
                 choices: ['start'],
                 data: {disp_type: 'learning_main_break'}
@@ -421,6 +468,7 @@
 
         }                       
     }
+
 
     // ** reconstruction prac ** //
     var test_prac = {
@@ -591,10 +639,10 @@
     timeline.push(learn_main_break1);
     timeline.push(learn_main2);
     timeline.push(learn_main_break2);
-    //timeline.push(learn_main3);
-    // timeline.push(learn_main_break3);
-    // timeline.push(learn_main4);
-    // timeline.push(learn_main_break4);
+    timeline.push(learn_main3);
+    timeline.push(learn_main_break3);
+    timeline.push(learn_main4);
+    timeline.push(learn_main_break4);
     // timeline.push(learn_main5);
     // timeline.push(learn_main_break5);
     // ** memory reconstruction    
@@ -607,10 +655,10 @@
     timeline.push(test_main_break1);
     timeline.push(test_main2);
     timeline.push(test_main_break2);
-    //timeline.push(test_main3);
-    // timeline.push(test_main_break3);
-    // timeline.push(test_main4);
-    // timeline.push(test_main_break4);
+    timeline.push(test_main3);
+    timeline.push(test_main_break3);
+    timeline.push(test_main4);
+    timeline.push(test_main_break4);
     // timeline.push(test_main5);
     // timeline.push(test_main_break5);
     // ** transfer-memory reconstruction
@@ -620,10 +668,10 @@
     timeline.push(test_main_break1);
     timeline.push(transfer_main2);
     timeline.push(test_main_break2);    
-    //timeline.push(transfer_main3);
-    // timeline.push(test_main_break3);
-    // timeline.push(transfer_main4);
-    // timeline.push(test_main_break4);     
+    timeline.push(transfer_main3);
+    timeline.push(test_main_break3);
+    timeline.push(transfer_main4);
+    timeline.push(test_main_break4);     
     // timeline.push(transfer_main5);
     // timeline.push(test_main_break5);      
     // ** transfer-learning
