@@ -137,20 +137,20 @@
         stimulus: `
             <div style="max-width:1000px; margin:20px 50px; text-align:center; font-family:Arial, sans-serif;">
                 <h1 style="font-size:50px; font-weight:bold;">Welcome to the Study!</h1>
-                <p> In this study, you will complete <strong>4 brief sessions</strong>, each featuring a different task.</p>
-                <p> Before we begin, please read the following scenario carefully.</p>
+                <p style="font-size:22px;"> In this study, you will complete <strong>4 brief sessions</strong>, each featuring a different task.</p>
+                <p style="font-size:22px;"> Before we begin, please read the following scenario carefully.</p>
                 <div style="border:2px solid crimson; border-radius:10px; padding:30px 30px; text-align:center; margin:0 100px;">
-                    <p style="font-style:italic; font-size:20px; margin-bottom:16px; color: crimson;"><strong>Scenario:</strong></p>
-                    <p style="font-style:italic; font-size:16px; line-height:1.7; margin:0;">
+                    <p style="font-style:italic; font-size:22px; margin-bottom:16px; color: crimson;"><strong>Scenario:</strong></p>
+                    <p style="font-style:italic; font-size:22px; line-height:1.7; margin:0;">
                         Imagine you are working for a web design agency.<br>
-                        Your client, 280 Realty Group, has requested a web brochure for their newly opened condominium.<br>
+                        Your client, SS Realty Group, has requested a web brochure for their newly opened condominium.<br>
                         They have specifically asked for high-quality photos of their showrooms.<br>
                         To meet this request, your photography team has prepared two sets of bedroom images,each featuring a slightly different style.
                     </p>
                 </div>
-                <p> Please click the button below to view the instructions for <strong>Session 1</strong> </p>
+                <p style="font-size:22px;"> Please click the button below to view the instructions for <strong>Session 1</strong> </p>
             </div>`,
-        choices: ['next'],
+        choices: ['Next'],
         data: {disp_type: 'inst_welcome'}
     }
     var inst_session1 = {
@@ -158,23 +158,23 @@
         stimulus: `
             <div style="max-width:1000px; margin:20px 50px; font-family:Arial, sans-serif;">
                 <h1 style="font-size:40px; font-weight:bold; text-align:center;"> Session 1</h1>
-                <div style="text-align: left">
+                <div style="font-size:20px; text-align: left">
                     <p style="text-decoration:underline; text-align:left;">Scenario continued:</p>
-                    <p style="font-style:italic; font-size:16px; line-height:1.3;">
+                    <p style="font-style:italic; font-size:20px; line-height:1.3;">
                         Last night, the image folders of the two sets were acidentally merged... <br>
                         The photography team has asked you to help sort the images back into their correct folders.<br>
                         When asked about the style that defines each photo set, they mentioned it's difficult verbally, but they can indentify them visually.
                     </p>
                 </div>
                 <div style="border:2px solid black; padding:30px; text-align:center; margin:0 auto 24px; max-width:420px;">
-                    <img src="stimuli/practice_bedroom1.webp" style="width:120px; height:90px; object-fit:contain;">
-                    <p style="margin:0; font-size:16px;">Press 'e' for Set 1 and 'i' for Set 2</p>
+                    <img src="stimuli/practice_bedroom1.webp" style="width:120px; height:120px; object-fit:contain;">
+                    <p style="margin:0; font-size:18px;">Press 'e' for Set 1 and 'i' for Set 2</p>
                 </div>
-                <p style="text-align:center; font-size:16px; line-height:1.3; margin-bottom:0px;">
+                <p style="text-align:center; font-size:20px; line-height:1.3; margin-bottom:0px;">
                     In this session, you will see multiple images one by one. For each image, you must decide which set it belongs to by pressing either
                     <strong>'e'</strong> or <strong>'i'</strong>.
                 </p>
-                <p style="text-align:center; font-size:16px; line-height:1.3; margin-bottom:0px;"> 
+                <p style="text-align:center; font-size:20px; line-height:1.3; margin-bottom:0px;"> 
                     After each response, a photography staff member will provide feedback on whether you were <strong>correct</strong> or <strong>not</strong>.
                     Based on this feedback, try to sort as many images correctly as possible.
                 </p>
@@ -182,9 +182,9 @@
                     <strong>Please try to respond as accurately and quickly as possible.</strong><br>
                     If you do not responded within <strong>2 seconds</strong>, it will move on to the next image.
                 </p>
-                <p style="text-align:center; font-size:16px;">You will perform this task for <strong>120 images over ${n_block*2} rounds.</strong></p>
+                <p style="text-align:center; font-size:20px;">You will perform this task for <strong>${econd.learning.b1.length * 4} images over ${n_block*2} rounds.</strong></p>
             </div>`,
-        choices: ['start'],
+        choices: ['Start'],
         data: {disp_type: 'inst_session1'}
     }
     var inst_session2 = {
@@ -194,20 +194,20 @@
                 <h1 style="font-size:40px; font-weight:bold; text-align:center;">Session 2</h1>
                 <div style="text-align: left">
                     <p style="text-decoration:underline; text-align:left;">Scenario continued:</p>
-                    <p style="font-style:italic; font-size:16px; line-height:1.3;">
+                    <p style="font-style:italic; font-size:20px; line-height:1.3;">
                         You've successfully sorted all the images!<br> Next, the team needs to pick out the most memorable room photos for the brochure.
                         To identify which ones are more memorable, they've designed a quick experiment.
                     </p>
                 </div>
                 
-                <img src="stimuli/inst_session2.JPG" style="display:block; width:800px; max-width:100%; height:auto; margin:20px auto;"
+                <img src="stimuli/inst_session2.JPG" style="display:block; width:1000px; max-width:100%; height:auto; margin:20px auto;"
 
-                <p style="text-align:center; font-size:16px; line-height:1.7;">
-                    This task will be repeated <strong>171 times, with 3 breaks.</strong><br>
+                <p style="text-align:center; font-size:20px; line-height:1.7;">
+                    This task will be repeated <strong>${(econd.memory.b1.length + econd.memory.b2.length)* 2} times, with ${econd.n_block * 2 -1} breaks.</strong><br>
                     Before you begin, let's try <strong>3 practice trials.</strong>
                 </p>
             </div>`,
-        choices: ['start'],
+        choices: ['Start'],
         data: {disp_type: 'inst_session2'}
     }
     var inst_session3 = {
@@ -217,19 +217,19 @@
                 <h1 style="font-size:40px; font-weight:bold; text-align:center;">Session 3</h1>
                 <div style="text-align: left">
                     <p style="text-decoration:underline; text-align:left;">Scenario continued:</p>
-                    <p style="font-style:italic; font-size:16px; line-height:1.3;">
+                    <p style="font-style:italic; font-size:20px; line-height:1.3;">
                         While you were working on the experiment, the photography team finished preparing images of another bedroom.
                         You'll now complete the same memory task using these new bedroom images.
                     </p>
                 </div>
                 
-                <img src="stimuli/inst_session3.JPG" style="display:block; width:800px; max-width:100%; height:auto; margin:20px auto;"
+                <img src="stimuli/inst_session3.JPG" style="display:block; width:1000px; max-width:100%; height:auto; margin:20px auto;"
 
-                <p style="text-align:center; font-size:16px; line-height:1.7;">
-                    You will repeat this trial <strong>171 times</strong> and will be given <strong>3 breaks.</strong>
+                <p style="text-align:center; font-size:20px; line-height:1.7;">
+                    You will repeat this trial <strong>${(econd.transfer_memory.b1.length + econd.transfer_memory.b2.length)*2} times</strong> and will be given <strong>${econd.n_block*2 - 1} breaks.</strong>
                 </p>
             </div>`,
-        choices: ['start'],
+        choices: ['Start'],
         data: {disp_type: 'inst_session3'}
     }
     var inst_session4 = {
@@ -239,7 +239,7 @@
                 <h1 style="font-size:40px; font-weight:bold; text-align:center;">Session 4</h1>
                 <div style="text-align: left">
                     <p style="text-decoration:underline; text-align:left;">Scenario continued:</p>
-                    <p style="font-style:italic; font-size:16px; line-height:1.3;">
+                    <p style="font-style:italic; font-size:20px; line-height:1.3;">
                         The photography team asked you to sort out some images one more time.<br>
                         These images are the bedrooms you just saw in the previous session. You can classify them based on the style you learned in the first session.
                         This time, you perform this task <strong>without feedback.</strong>
@@ -247,17 +247,17 @@
                 </div>
 
                 <div style="border:2px solid black; padding:30px; text-align:center; margin:0 auto 24px; max-width:420px;">
-                    <img src="stimuli/practice_bedroom2.webp" style="width:120px; height:90px; object-fit:contain;">
-                    <p style="margin:0; font-size:16px;">Press 'e' for Set 1 and 'i' for Set 2</p>
+                    <img src="stimuli/practice_bedroom2.webp" style="width:120px; height:120px; object-fit:contain;">
+                    <p style="margin:0; font-size:20px;">Press 'e' for Set 1 and 'i' for Set 2</p>
                 </div>
-                <p style="text-align:center; font-size:16px; line-height:1.3; margin-bottom:0px;">This session faollows the same procedure as Session 1</p>
+                <p style="text-align:center; font-size:20px; line-height:1.3; margin-bottom:0px;">This session faollows the same procedure as Session 1</p>
                 <p style="text-align:center; color: crimson; font-size:20px;">
                     <strong>Please try to respond as accurately and quickly as possible.</strong><br>
                     If you do not responded within <strong>2 seconds</strong>, it will move on to the next image.
                 </p>
-                <p style="text-align:center; font-size:16px;">You will perform this task for <strong>18 images.</strong></p>
+                <p style="text-align:center; font-size:20px;">You will perform this task for <strong>${econd.transfer_learning.b1.length} images.</strong></p>
             </div>`,
-        choices: ['start'],
+        choices: ['Start'],
         data: {disp_type: 'inst_session4'}
     }
 
@@ -331,7 +331,7 @@
                 stimulus: '<div style="font-size:20px;">This is the end of round '+(r+1)+'.</br>'+
                     'You have '+(n_block*2-r-1)+' more round(s) to go.</br>'+
                     'Take a break and press the button to proceed.</br></br></div>',               
-                choices: ['start'],
+                choices: ['Start'],
                 data: {disp_type: 'learn_main_break'}
             }                       
     }
@@ -351,15 +351,15 @@
                 stimulus: '<div style="font-size:20px;">This is the end of round '+(r+3)+'.</br>'+
                     'You have '+(n_block-r-1)+' more round(s) to go.</br>'+
                     'Take a break and press the button to proceed.</br></br></div>',               
-                choices: ['start'],
+                choices: ['Start'],
                 data: {disp_type: 'learn_main_break'}
             }
         } else {
             this['learn_main_break'+(r+3)] = {                
                 type: jsPsychHtmlButtonResponse,
-                stimulus: '<div style="font-size:20px;">This is the end of round'+(r+3)+'.</br>'+
+                stimulus: '<div style="font-size:20px;">This is the end of round '+(r+3)+'.</br>'+
                 'Take a break and press the button to move on to the next session.</br></br></div>',                    
-                choices: ['next'],
+                choices: ['Next'],
                 data: {disp_type: 'learn_main_break'}
             }
 
@@ -427,7 +427,7 @@
                 stimulus: '<div style="font-size:20px;">This is the end of round '+(r+1)+'.</br>'+
                 'You have '+(n_block*2-r-1)+' more round(s) to go.</br>'+
                 'Take a break and press the button to proceed.</br></br></div>',                    
-                choices: ['start'],
+                choices: ['Start'],
                 data: {disp_type: 'learning_main_break'}
             }                     
     }
@@ -454,15 +454,15 @@ for(r=0; r<n_block; r++){
                 stimulus: '<div style="font-size:20px;">This is the end of round '+(r+3)+'.</br>'+
                 'You have '+(n_block-r-1)+' more round(s) to go.</br>'+
                 'Take a break and press the button to proceed.</br></br></div>',                    
-                choices: ['start'],
+                choices: ['Start'],
                 data: {disp_type: 'learning_main_break'}
             }
         } else {
             this['test_main_break'+(r+3)] = {                
                 type: jsPsychHtmlButtonResponse,
-                stimulus: '<div style="font-size:20px;">This is the end of round'+(r+3)+'.</br>'+
+                stimulus: '<div style="font-size:20px;">This is the end of round '+(r+3)+'.</br>'+
                 'Take a break and press the button to proceed.</br></br></div>',                    
-                choices: ['start'],
+                choices: ['Start'],
                 data: {disp_type: 'learning_main_break'}
             }
 
@@ -478,7 +478,7 @@ for(r=0; r<n_block; r++){
     var test_prac2main = {
         type: jsPsychHtmlButtonResponse,
         stimulus: '<div style="font-size:20px;">Practice is done. Now move on to the main trials.</div>',
-        choices: ['start'],
+        choices: ['Start'],
         data: {disp_type: 'test_pract2main'}
     }
 
@@ -628,13 +628,15 @@ for(r=0; r<n_block; r++){
         data: {disp_type: 'fullscreen-in'}
     });
     // timeline.push(preload_inst);
+    timeline.push(preload_prac);
+    timeline.push(preload_learning);
+    timeline.push(preload_transfer);
     timeline.push(consent);
     timeline.push(demographic_page);
     timeline.push(chinrest_trial);     
     timeline.push(inst_welcome);
-    // ** learning ** //          
-    timeline.push(inst_session1);
-    timeline.push(preload_learning);
+    // // ** learning ** //          
+    timeline.push(inst_session1);    
     timeline.push(learn_main1);
     timeline.push(learn_main_break1);
     timeline.push(learn_main2);
@@ -643,14 +645,10 @@ for(r=0; r<n_block; r++){
     timeline.push(learn_main_break3);
     timeline.push(learn_main4);
     timeline.push(learn_main_break4);
-    // timeline.push(learn_main5);
-    // timeline.push(learn_main_break5);
     // ** memory reconstruction    
-    timeline.push(inst_session2); 
-    timeline.push(preload_prac);
+    timeline.push(inst_session2);    
     timeline.push(test_prac);
     timeline.push(test_prac2main);  
-    timeline.push(preload_learning);  
     timeline.push(test_main1);
     timeline.push(test_main_break1);
     timeline.push(test_main2);
@@ -659,10 +657,7 @@ for(r=0; r<n_block; r++){
     timeline.push(test_main_break3);
     timeline.push(test_main4);
     timeline.push(test_main_break4);
-    // timeline.push(test_main5);
-    // timeline.push(test_main_break5);
-    // ** transfer-memory reconstruction
-    timeline.push(preload_transfer);
+    // ** transfer-memory reconstruction    
     timeline.push(inst_session3);
     timeline.push(transfer_main1);
     timeline.push(test_main_break1);
@@ -671,9 +666,7 @@ for(r=0; r<n_block; r++){
     timeline.push(transfer_main3);
     timeline.push(test_main_break3);
     timeline.push(transfer_main4);
-    timeline.push(test_main_break4);     
-    // timeline.push(transfer_main5);
-    // timeline.push(test_main_break5);      
+    timeline.push(test_main_break4);      
     // ** transfer-learning
     timeline.push(inst_session4);    
     timeline.push(transfer_learning);
