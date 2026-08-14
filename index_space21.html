@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>    
+    <title>PsyExperiment</title>    
+    <script src="https://unpkg.com/jspsych@7.1.2"></script>
+    <link href="https://unpkg.com/jspsych@7.1.2/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.2"></script>
+    <script src="plugin-reconstruct-2D.js"></script> 
+    <script src="make_condition_flexible.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.1.2/firebase-database.js"></script>   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.2/underscore.min.js" integrity="sha512-6mqtVtgbfCJNW9phBE9ZIsviePVIHAv5No5hF+Sw/A/FSCQTUaHQkKykXhr5IpNhJkvcqftZLIe+T6nsCro5fw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-virtual-chinrest@2.0.3"></script>
+
+</head>
+<body></body>
+
+<script type="text/javascript">
+    // Firebase set up
+    const firebaseConfig = {
+        apiKey: "AIzaSyCUok7hM8TZEmhA_JGoYLoYkPkAwmYmZWI",
+        authDomain: "scenecp-transfer2026.firebaseapp.com",
+        databaseURL: "https://scenecp-transfer2026-default-rtdb.firebaseio.com",
+        projectId: "scenecp-transfer2026",
+        storageBucket: "scenecp-transfer2026.firebasestorage.app",
+        messagingSenderId: "382658751067",
+        appId: "1:382658751067:web:043fa14aae52e9466c2d7e"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // login anonymous user
+    firebase.auth().signInAnonymously().catch(function(error) {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+    });      
+</script>
+
+<script>
+    
+    // ** design ** //
+    var key_feature = 'wood'
+    var cat_label = ['Miro', 'Tavi']
+    var random_cat_label = _.sample(cat_label, 2)
+
+    var room_set = ['fix_bedroom_lighting13_set1_21x21', 'fix_bedroom_lighting13_set2_21x21']
+    var learning_set = room_set[0];
+    var transfer_set = room_set[1];
+    var practice_set = 'practice_bedroom_set2_21x21'
+    var space_rot = 0; // Math.random()*360;    
+    var grid_size = 21;
+    var circle_on = true;
+    if(circle_on){ var canvas_shape = 'circle' }
+    var econd = make_condition_flexible(
+        grid_size, key_feature, random_cat_label, learning_set, transfer_set, circle_on
+    );
+    var pcond = make_condition_flexible(
+        grid_size, key_feature, random_cat_label, practice_set, practice_set, circle_on
+    )
+    var n_block = econd.n_block
+
+
+    // ** initialize ** //
+    const jsPsych = initJsPsych();
+
+    // ** image preloading ** //
+    // 지시문, learning, transfer, prac set 프리로딩함
+    var preload_inst = {
+        type: jsPsychPreload,
+        images: ['stimuli/instruction/inst_session2.png','stimuli/instruction/inst_session3.png',],
+        data: {disp_type: 'preload_inst'}
+    }
+    var images_learning = [];
+    var num_img = grid_size*grid_size
+    for (var i=0; i<num_img; i++){   
+        images_learning.push("stimuli/"+learning_set+"/"+("000000"+i).slice(-6)+".webp")
+    }
+    images_learning.push("stimuli/"+learning_set+"/"+"999999.webp")
+    var preload_learning = {
+        type: jsPsychPreload, 
+        images: images_learning,
+        data: {disp_type: 'preload_learning'}
+    }
+    var images_transfer = [];    
+    for (var i=0; i<num_img; i++){  
+        images_transfer.push("stimuli/"+transfer_set+"/"+("000000"+i).slice(-6)+".webp")
+    }    
+    images_transfer.push("stimuli/"+transfer_set+"/"+"999999.webp")
+    var preload_transfer = {
+        type: jsPsychPreload, 
+        images: images_transfer,
+        data: {disp_type: 'preload_transfer'}
+    }
+    var images_prac = [];
+    for (var i=0; i<num_img; i++){   
+        images_prac.push("stimuli/"+practice_set+"/"+("000000"+i).slice(-6)+".webp")
+    }
+    images_prac.push("stimuli/"+practice_set+"/"+"999999.webp")
+    var preload_prac = {
+        type: jsPsychPreload, 
+        images: images_prac, 
+        data: {disp_type: 'preload_practice'}
+    }
+
+    // ** resizing ** // 
+    var chinrest_trial = {
+        type: jsPsychVirtualChinrest,
+        blindspot_reps: 0,
+        resize_units: "cm",
+        pixels_per_unit: 50,
+        item_path: null,
+        data: {disp_type: 'virtual_chinrest'}
+    };
+
+    // // * Prolific information * // -> GS: 프롤리픽에 업로드 시에 활성화 시키기
+    // var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
+    // var study_id = jsPsych.data.getURLVariable('STUDY_ID');
+    // var session_id = jsPsych.data.getURLVariable('SESSION_ID');
+    // jsPsych.data.addProperties({
+    //     subject_id: subject_id,
+    //     study_id: study_id,
+    //     session_id: session_id
+    // });
+    
+    // ** instruction ** //
+    var inst_welcome = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+            <div style="max-width:1000px; margin:20px 50px; text-align:center; font-family:Arial, sans-serif;">
+                <h1 style="font-size:50px; font-weight:bold;">Welcome to the Study!</h1>
+                <p style="font-size:22px;"> In this study, you will complete <strong>4 brief sessions</strong>, each featuring a different task.</p>
+                <p style="font-size:22px;"> Before we begin, please read the following scenario carefully.</p>
+                <div style="border:2px solid crimson; border-radius:10px; padding:30px 30px; text-align:center; margin:0 100px;">
+                    <p style="font-style:italic; font-size:22px; margin-bottom:16px; color: crimson;"><strong>Scenario:</strong></p>
+                    <p style="font-style:italic; font-size:22px; line-height:1.7; margin:0;">
+                        Imagine that you work for a web design agency.<br>
+                        Your client, SS Realty Group, is creating a web brochure for their newly opened condominium.<br>
+                        They have asked you to include photos of the model bedrooms in the brochure.<br>
+                        To meet this request, your photography team has prepared two sets of bedroom images, called <strong>Miro</strong> and <strong>Tavi</strong>.
+                    </p>
+                </div>
+                <p style="font-size:22px;"> Click the button below to begin Session 1</p>
+            </div>`,
+        choices: ['Next'],
+        data: {disp_type: 'inst_welcome'}
+    }
+    var inst_session1 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+            <div style="max-width:1000px; margin:20px 50px; font-family:Arial, sans-serif;">
+                <h1 style="font-size:40px; font-weight:bold; text-align:center;"> Session 1</h1>
+                <div style="font-size:20px; text-align: left">
+                    <p style="text-decoration:underline; text-align:left;">Scenario continued:</p>
+                    <p style="font-style:italic; font-size:20px; line-height:1.3;">
+                        Last night, however, the <strong>Miro</strong> and <strong>Tavi</strong> image folders were accidentally merged.<br>
+                        The photography team has asked you to help sort the images back into their correct folders.<br>
+                        They cannot easily describe the difference between the two sets, but they can provide feedback as you classify each image.
+                    </p>
+                </div>
+                <div style="border:2px solid black; padding:30px; text-align:center; margin:0 auto 24px; max-width:420px;">
+                    <img src="stimuli/practice_bedroom1.webp" style="width:120px; height:120px; object-fit:contain;">
+                    <p style="margin:0; font-size:18px;">Press 'e' for Miro and 'i' for Tavi</p>
+                </div>
+                <p style="text-align:center; font-size:20px; line-height:1.3; margin-bottom:0px;">
+                    In this session, you will see a series of images one at a time.<br> For each image, decide which set it belongs to by pressing either
+                    <strong>'e'</strong> or <strong>'i'</strong>.
+                </p>
+                <p style="text-align:center; font-size:20px; line-height:1.3; margin-bottom:0px;"> 
+                    After each response, you will receive feedback indicating whether your response was <strong>correct</strong> or <strong>wrong</strong>.
+                    <br>Use this feedback to sort as many images correctly as possible.
+                </p>
+                <p style="text-align:center; color: crimson; font-size:20px;">
+                    <strong>Please try to respond as accurately and quickly as possible.</strong><br>
+                    If you do not responded within <strong>2 seconds</strong>, it will automatically move on to the next image.
+                </p>
+                <p style="text-align:center; font-size:20px;">You will classify <strong>${econd.learning.b1.length * 4} images across ${n_block*2} rounds.</strong></p>
+            </div>`,
+        choices: ['Start'],
+        data: {disp_type: 'inst_session1'}
+    }
+    var inst_session2 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+            <div style="max-width:1000px; margin:20px 50px; font-family:Arial, sans-serif;">
+                <h1 style="font-size:40px; font-weight:bold; text-align:center;">Session 2</h1>
+                <div style="text-align: left">
+                    <p style="text-decoration:underline; text-align:left;">Scenario continued:</p>
+                    <p style="font-style:italic; font-size:20px; line-height:1.3;">
+                        The image sorting task is complete!<br>
+                        Now the team needs to decide which bedroom photos from <strong>Miro</strong> and <strong>Tavi</strong> will be featured in the brochure.
+                        To help make this decision, they have designed a short memory experiment.<br>
+                        The memory experiment will proceed as follows:
+                    </p>
+                </div>
+                
+                <img src="stimuli/instruction/inst_session2.png" style="display:block; width:1000px; max-width:100%; height:auto; margin:20px auto;"
+
+                <p style="text-align:center; font-size:20px; line-height:1.7;">
+                    You will complete <strong>${(econd.memory.b1.length + econd.memory.b2.length)* 2} trials across ${econd.n_block * 2} rounds.</strong><br>
+                    Before you begin, you will complete <strong>3 practice trials.</strong>
+                </p>
+            </div>`,
+        choices: ['Start'],
+        data: {disp_type: 'inst_session2'}
+    }
+    var inst_session3 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+            <div style="max-width:1000px; margin:20px 50px; font-family:Arial, sans-serif;">
+                <h1 style="font-size:40px; font-weight:bold; text-align:center;">Session 3</h1>
+                <div style="text-align: left">
+                    <p style="text-decoration:underline; text-align:left;">Scenario continued:</p>
+                    <p style="font-style:italic; font-size:20px; line-height:1.3;">
+                        While you were completing the experiment, the photography team prepared new images of another bedroom, also organized into the <strong>Miro</strong> and <strong>Tavi</strong> categories.<br>
+                        You'll now complete the same memory task using these new images.
+                    </p>
+                </div>
+                
+                <img src="stimuli/instruction/inst_session3.png" style="display:block; width:1000px; max-width:100%; height:auto; margin:20px auto;"
+
+                <p style="text-align:center; font-size:20px; line-height:1.7;">
+                    You will complete  <strong>${(econd.transfer_memory.b1.length + econd.transfer_memory.b2.length)*2} trials across <strong>${econd.n_block * 2} rounds.</strong>
+                </p>
+            </div>`,
+        choices: ['Start'],
+        data: {disp_type: 'inst_session3'}
+    }
+    var inst_session4 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: `
+            <div style="max-width:1000px; margin:20px 50px; font-family:Arial, sans-serif;">
+                <h1 style="font-size:40px; font-weight:bold; text-align:center;">Session 4</h1>
+                <div style="text-align: left">
+                    <p style="text-decoration:underline; text-align:left;">Scenario continued:</p>
+                    <p style="font-style:italic; font-size:20px; line-height:1.3;">
+                        The photography team has one final request.<br>
+                        Please sort the bedroom images you saw in the previous session into the <strong>Miro</strong> and <strong>Tavi</strong>.<br>
+                        This time, however, you will complete the task <strong>without feedback.</strong>
+                    </p>
+                </div>
+
+                <div style="border:2px solid black; padding:30px; text-align:center; margin:0 auto 24px; max-width:420px;">
+                    <img src="stimuli/practice_bedroom2.webp" style="width:120px; height:120px; object-fit:contain;">
+                    <p style="margin:0; font-size:20px;">Press 'e' for Miro and 'i' for Tavi</p>
+                </div>
+                <p style="text-align:center; font-size:20px; line-height:1.3; margin-bottom:0px;">This session faollows the same procedure as Session 1</p>
+                <p style="text-align:center; color: crimson; font-size:20px;">
+                    <strong>Please try to respond as accurately and quickly as possible.</strong><br>
+                    If you do not responded within <strong>2 seconds</strong>, it will automatically move on to the next image.
+                </p>
+                <p style="text-align:center; font-size:20px;">You will complete <strong>${econd.transfer_learning.b1.length} trials.</strong></p>
+            </div>`,
+        choices: ['Start'],
+        data: {disp_type: 'inst_session4'}
+    }
+
+    // ** initial learn ** //    
+    var learn_display = {
+        type: jsPsychImageKeyboardResponse,
+        stimulus: jsPsych.timelineVariable('img_path'),
+        choices: ['e', 'i'],
+        data: {
+            disp_type: 'learn_display',
+            key_feature: jsPsych.timelineVariable('key_feature'),
+            answer: jsPsych.timelineVariable('label'),
+            position: jsPsych.timelineVariable('position'),
+            stim_coord: jsPsych.timelineVariable('stim_coord'),
+            stim_idx: jsPsych.timelineVariable('stim_idx')
+        },
+        prompt: '<p>Press "e" for Miro and "i" for Tavi.</p>',
+        trial_duration: 2000,
+        on_finish: function(data){            
+            if(jsPsych.timelineVariable('label')=="Miro"){
+                var correct_key = "e"
+            }else if(jsPsych.timelineVariable('label')=="Tavi"){
+                var correct_key = "i"
+            }              
+            if(data.response == null){
+                data.correct = 'late';
+            } else {
+                if(jsPsych.pluginAPI.compareKeys(data.response, correct_key)){
+                    data.correct = 'correct';
+                } else {
+                    data.correct = 'wrong';
+                }
+            } 
+        }
+    } 
+    var feedback_display = {
+        type:jsPsychHtmlKeyboardResponse,
+        stimulus: function(){
+            var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct;  
+            if(last_trial_correct == 'correct') {
+                var fb = '<p><mark style="color:green; background:none; font-size:30pt;">Correct!</mark></br></p>'         
+            } else if(last_trial_correct == 'wrong'){
+                var fb = '<p><mark style="color:red; background:none; font-size:30pt;">Wrong...</mark></br></p>'
+            } else if(last_trial_correct == 'late'){
+                var fb = '<p><mark style="color:brown; background:none; font-size:30pt;">Too slow</mark></p>'
+            }
+            return fb
+        },
+        trial_duration: 1000,
+        choices: "NO_KEYS",
+        data: {disp_type: "learn_feedback"}
+    }
+
+    var learning_prac = { //include - depends on the exp duration 
+        timeline: [learn_display, feedback_display],
+        timeline_variables: pcond.learning.b1.slice(0,5),
+        randomize_ordr: true
+    }
+
+    for(r=0; r<n_block; r++){
+        this['learn_main'+(r+1)] = {
+            timeline: [learn_display, feedback_display],
+            timeline_variables: econd.learning['b'+(r+1)],
+            // timeline_variables: _.shuffle(econd.learning['r'+(r+1)]).slice(0,5),
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_block; r++){     
+        this['learn_main_break'+(r+1)] = {                
+            type: jsPsychHtmlButtonResponse,
+            stimulus: '<div style="font-size:20px;">This is the end of round '+(r+1)+'.</br>'+
+                'You have '+(n_block*2-r-1)+' more round(s) to go.</br>'+
+                'Take a short break, then click the button below to continue.</br></br></div>',               
+            choices: ['Start'],
+            data: {disp_type: 'learn_main_break'}
+        }                       
+    }
+
+    for(r=0; r<n_block; r++){
+        this['learn_main'+(r+4)] = {
+            timeline: [learn_display, feedback_display],
+            timeline_variables: econd.learning['b'+(r+1)],
+            // timeline_variables: _.shuffle(econd.learning['r'+(r+1)]).slice(0,5),
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_block; r++){     
+        if(r!=(n_block-1)){
+            this['learn_main_break'+(r+4)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round '+(r+4)+'.</br>'+
+                    'You have '+(n_block-r-1)+' more round(s) to go.</br>'+
+                    'Take a short break, then click the button below to continue.</br></br></div>',               
+                choices: ['Start'],
+                data: {disp_type: 'learn_main_break'}
+            }
+        } else {
+            this['learn_main_break'+(r+4)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round '+(r+4)+'.</br>'+
+                'Take a short break, then click the button below to being the next session.</br></br></div>',                    
+                choices: ['Next'],
+                data: {disp_type: 'learn_main_break'}
+            }
+
+        }                       
+    }
+
+
+    // ** reconstruction ** //
+    var fixation = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: '<p style="font-size: 48px;">+</p>',
+        choices: "NO_KEYS",
+        trial_duration: 1000,
+        data: {disp_type: 'fixation'}
+    }
+    var blank = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: ' ',
+        choices: "NO_KEYS",
+        trial_duration: 1000,
+        data: {disp_type: 'blank'}
+    }
+    var target_display = {
+        type: jsPsychImageKeyboardResponse,
+        stimulus: jsPsych.timelineVariable('img_path'),
+        choices: "NO_KEYS",
+        trial_duration: 200,
+        data: {disp_type: 'recon_target'}
+    }
+    var reconstruction = {
+        type: jsPsychReconstruct_2D,
+        horizontal_step_size: grid_size, 
+        vertical_step_size: grid_size,  
+        image_path: jsPsych.timelineVariable('space_path'),
+        image_format: 'webp',        
+        canvas_shape: canvas_shape, 
+        uncertainty_range: false,  
+        data: {
+            disp_type: 'reconstruction',
+            key_feature: jsPsych.timelineVariable('key_feature'),
+            position: jsPsych.timelineVariable('position'),
+            label: jsPsych.timelineVariable('label'),
+            answer_coord: jsPsych.timelineVariable('stim_coord'),
+            answer: jsPsych.timelineVariable('stim_idx'),
+            space_rotation: space_rot
+        }  
+    }
+    for(r=0; r<n_block; r++){
+        this['test_main'+(r+1)] = {
+            timeline: [fixation, target_display, blank, reconstruction],
+            timeline_variables: econd.memory['b'+(r+1)],
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_block; r++){
+        this['transfer_main'+(r+1)] = {
+            timeline: [fixation, target_display, blank, reconstruction],
+            timeline_variables: econd.transfer_memory['b'+(r+1)],
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_block; r++){     
+        this['test_main_break'+(r+1)] = {                
+            type: jsPsychHtmlButtonResponse,
+            stimulus: '<div style="font-size:20px;">This is the end of round '+(r+1)+'.</br>'+
+            'You have '+(n_block*2-r-1)+' more round(s) to go.</br>'+
+            'Take a short break, then click the button below to continue.</br></br></div>',                    
+            choices: ['Start'],
+            data: {disp_type: 'test_main_break'}
+        }                     
+    }
+
+
+    for(r=0; r<n_block; r++){
+        this['test_main'+(r+4)] = {
+            timeline: [fixation, target_display, blank, reconstruction],
+            timeline_variables: econd.memory['b'+(r+1)],
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_block; r++){
+        this['transfer_main'+(r+4)] = {
+            timeline: [fixation, target_display, blank, reconstruction],
+            timeline_variables: econd.transfer_memory['b'+(r+1)],
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_block; r++){     
+        if(r!=(n_block-1)){
+            this['test_main_break'+(r+4)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round '+(r+4)+'.</br>'+
+                'You have '+(n_block-r-1)+' more round(s) to go.</br>'+
+                'Take a short break, then click the button below to continue.</br></br></div>',                    
+                choices: ['Start'],
+                data: {disp_type: 'test_main_break'}
+            }
+        } else {
+            this['test_main_break'+(r+4)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round '+(r+4)+'.</br>'+
+                'Take a short break, then click the button below to being the next session.</br></br></div>',                    
+                choices: ['Start'],
+                data: {disp_type: 'test_main_break'}
+            }
+
+        }                       
+    }
+
+
+    // ** reconstruction prac ** //
+    var test_prac = {
+        timeline: [fixation, target_display, blank, reconstruction],
+        timeline_variables: pcond.memory.b1.slice(0, 3),
+    }
+    var test_prac2main = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<div style="font-size:20px;">Practice is complete. Now begin the main trials.<br><br></div>',
+        choices: ['Start'],
+        data: {disp_type: 'test_pract2main'}
+    }
+
+    // ** transfer learn ** //    
+    var transfer_learning = {
+        timeline: [fixation, learn_display], // without feedback
+        timeline_variables: econd.transfer_learning.b1,
+        randomize_order: true
+    };
+
+    // ** consent ** //
+    var consent = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: function(){                            
+          var html = 
+          '<p area-selected="font-size:15px;"> Press Agree to participate in the experiment.</p>'+  
+          '<embed src="stimuli/연구참여동의서.pdf" style="width:80vw; height:70vh;"></embed>'
+          return html;
+        },
+        choices: ['Agree'],        
+        data: {disp_type: 'consent_page'}   
+    }
+
+    // ** demographic page ** //
+    var gender_options = ['Male', 'Female', 'Other'];
+    var handed_option = ['Right', 'Left', 'ambidextrous'];
+    var demographic_page = {
+        type: jsPsychSurveyHtmlForm,
+        preamble: '<p><b>Before starting, we would like to collect basic information below.</b></p>',
+        html: '<p style="font-size:12pt;"> Gender: '+
+            '<input name="gender" type="radio" value="male"  required/><label for="male">Male</label>'+
+            '<input name="gender" type="radio" value="female"  required/><label for="female">Female</label>'+
+            '<input name="gender" type="radio" value="other"  required/><label for="other">Other</label></br>'+
+            // age
+            'Age: <input name="age" type="text"/></br>'+
+            // lenses
+            '</br>Do you wear corrective lenses?: '+
+            '<input name="lense" type="radio" value="yes" required/><label for="yes">Yes</label>'+
+            '<input name="lense" type="radio" value="no" required/><label for="no">No</label>'+
+            '</br>If yes, specify glasses or contacts:  <input name="lensetype" type="text" /></br>'+                
+            // color blindness
+            '</br>Do you experience color blindness?: '+
+            '<input name="color" type="radio" value="yes" required/><label for="yes">Yes</label>'+
+            '<input name="color" type="radio" value="no" required/><label for="no">No</label></br>'+
+            // neurological conditions
+            '</br>Do you have (or have you had) any neurological conditions?: '+
+            '<input name="neuro" type="radio" value="yes" required/><label for="yes">Yes</label>'+
+            '<input name="neuro" type="radio" value="no" required/><label for="no">No</label>'+
+            '</br>If yes, please specify type and location: ' +
+            '<input name="neurotype" type="text" /></br></br>' +
+            '<div id="eligibility-message" ' +
+            'style="color:crimson; font-weight:bold; font-size:16px; margin-top:15px;"></div>' +
+            '</p>',
+        on_load: function () {
+            const continueButton = document.querySelector(
+                '#jspsych-survey-html-form-next'
+            );
+
+            const message = document.querySelector('#eligibility-message');
+
+            function checkEligibility() {
+                const colorAnswer = document.querySelector(
+                    'input[name="color"]:checked'
+                );
+
+                const neuroAnswer = document.querySelector(
+                    'input[name="neuro"]:checked'
+                );
+
+                const ineligible =
+                    colorAnswer?.value === 'yes' ||
+                    neuroAnswer?.value === 'yes';
+
+                if (ineligible) {
+                    continueButton.disabled = true;
+                    message.textContent =
+                        'Based on your responses, you are not eligible to continue with this study.';
+                } else {
+                    continueButton.disabled = false;
+                    message.textContent = '';
+                }
+            }
+
+            document
+                .querySelectorAll('input[name="color"], input[name="neuro"]')
+                .forEach(function (input) {
+                    input.addEventListener('change', checkEligibility);
+                });
+
+            checkEligibility();
+        },
+        data: {
+            disp_type: 'demographic_info'
+        }
+    }
+
+    // ** blank ** //
+    var blank = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: " ",
+        choices: "NO_KEYS",
+        trial_duration: 1000,
+        data: {disp_type: 'blank'}
+    }
+
+    // ** debrief question  ** //
+    var survey = {
+        type: jsPsychSurveyText,
+        preamble: "<p><b>All sessions are over! Thanks for participating.</br>"+
+            "We'd appreciate it if you could answer a few brief questions about your experience with the study.</b></p>",
+        questions: [
+            {prompt: 'Do you have any guess about the purpose of this study?', name: 'Purpose', rows: 5},
+            {prompt: 'Did you use any rules or strategies when classifying the bedroom images? If yes, please describe it.', name: 'Rule', rows: 5},
+            {prompt: 'If you have any other comments of feedback about this experiment, please tell us!', name: 'Feedback', rows: 5}
+        ],
+        data: {disp_type: 'hypothesis_guess'}
+    } 
+
+    function replaceUndefinedWithNull(obj) {
+        if (Array.isArray(obj)) {
+            return obj.map(replaceUndefinedWithNull);
+        }
+        if (obj !== null && typeof obj === "object") {
+            const cleaned = {};
+            for (const key in obj) {
+            cleaned[key] =
+                obj[key] === undefined ? null : replaceUndefinedWithNull(obj[key]);
+            }
+            return cleaned;
+        }
+        return obj;
+        }
+
+    var save_data = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: '<p>We are saving your data. Do not leave this page.</p>',
+      choices: "NO_KEYS",
+      trial_duration: 3000,
+      data: { // random rotation angle saving                
+          disp_type: 'saving_display'
+      },            
+      on_finish: function(){  
+        // jsPsych.data.displayData() 
+
+        // send data to firebase!  
+        const now = new Date();                               
+        const timestamp =
+            now.getFullYear().toString() +
+            String(now.getMonth() + 1).padStart(2, '0') +
+            String(now.getDate()).padStart(2, '0') +
+            String(now.getHours()).padStart(2, '0') +
+            String(now.getMinutes()).padStart(2, '0') +
+            String(now.getSeconds()).padStart(2, '0') +
+            String(now.getMilliseconds()).padStart(3, '0');
+        
+        const save_id = timestamp + "_" + Math.floor(Math.random()*10000);
+        const saveData = replaceUndefinedWithNull(jsPsych.data.get().values());
+        const interactionData = replaceUndefinedWithNull(
+            jsPsych.data.getInteractionData().values()
+        );
+        firebase.database().ref(save_id).set({
+            data: saveData,
+            interaction_data: interactionData,
+            date: now.toString()
+        });                    
+      }           
+    }
+
+    // debriefing letter 
+    var debrief_page = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: function(){                            
+            var html = 
+            '<p area-selected="font-size:15px;"> Thank you for participating!</p>'+      
+            '<p><a href="https://app.prolific.co/submissions/complete?cc=1C85CD1B">Click here to return to Prolific and complete the study</a>.</p>'+ // GS: prolific 설정 후 URL을 바꿔야 함             
+            '<embed src="stimuli/debrief_letter2.pdf" style="width:80vw; height:70vh;"></embed>'
+            return html;
+        },
+        choices: "NO_KEYS",        
+        data: {disp_type: 'debriefing_page'}            
+    } 
+
+    // ** timeline ** //
+    timeline = [];  
+    timeline.push({
+        type: jsPsychFullscreen,
+        fullscreen_mode: true,
+        delay_after: 0,
+        data: {disp_type: 'fullscreen-in'}
+    });
+    timeline.push(preload_inst);
+    timeline.push(preload_prac);
+    timeline.push(preload_learning);
+    timeline.push(preload_transfer);
+    timeline.push(consent);
+    timeline.push(demographic_page);
+    timeline.push(inst_welcome);
+    // ** learning ** //          
+    timeline.push(inst_session1);    
+    timeline.push(learn_main1);
+    timeline.push(learn_main_break1);
+    timeline.push(learn_main2);
+    timeline.push(learn_main_break2);
+    timeline.push(learn_main3);
+    timeline.push(learn_main_break3);
+    timeline.push(learn_main4);
+    timeline.push(learn_main_break4);
+    timeline.push(learn_main5);
+    timeline.push(learn_main_break5);
+    timeline.push(learn_main6);
+    timeline.push(learn_main_break6);
+    // ** memory reconstruction    
+    timeline.push(inst_session2);    
+    timeline.push(test_prac);
+    timeline.push(test_prac2main);  
+    timeline.push(test_main1);
+    timeline.push(test_main_break1);
+    timeline.push(test_main2);
+    timeline.push(test_main_break2);
+    timeline.push(test_main3);
+    timeline.push(test_main_break3);
+    timeline.push(test_main4);
+    timeline.push(test_main_break4);
+    timeline.push(test_main4);
+    timeline.push(test_main_break4);
+    timeline.push(test_main5);
+    timeline.push(test_main_break5);
+    timeline.push(test_main6);
+    timeline.push(test_main_break6);
+    // ** transfer-memory reconstruction    
+    timeline.push(inst_session3);
+    timeline.push(transfer_main1);
+    timeline.push(test_main_break1);
+    timeline.push(transfer_main2);
+    timeline.push(test_main_break2);    
+    timeline.push(transfer_main3);
+    timeline.push(test_main_break3);
+    timeline.push(transfer_main4);
+    timeline.push(test_main_break4);     
+    timeline.push(transfer_main5);
+    timeline.push(test_main_break5);  
+    timeline.push(transfer_main6);
+    timeline.push(test_main_break6);     
+    // ** transfer-learning
+    timeline.push(inst_session4);    
+    timeline.push(transfer_learning);
+    timeline.push(blank);
+    // ** debriefing question
+    timeline.push(survey);
+    timeline.push(save_data);
+    // ** end
+    timeline.push({
+        type: jsPsychFullscreen,
+        fullscreen_mode: false,
+        delay_after: 0,
+        data: {disp_type: 'fullscreen-out'}
+    });
+    
+    timeline.push(debrief_page);
+
+    jsPsych.run(timeline);
+    // function startExperiment(){
+    //     jsPsych.run(timeline);
+    // }
+    
+    
+</script>
+</html>
