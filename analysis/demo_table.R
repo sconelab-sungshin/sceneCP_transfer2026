@@ -1,14 +1,26 @@
 ##### 1. pakage loading #####
 library(jsonlite)  #JSON -> R dafatrame으로 읽기 위한 패키지
 library(dplyr)
-library(purr)      #이건 여러 파일 사용할 때 
+library(purrr)      #이건 여러 파일 사용할 때 
+library(stringr)
 
 ##### 2. JSON파일 읽기 #####
-json <- "C:/Users/박지윤/Documents/GitHub/sceneCP_transfer2026/result/demo_result_21_2.json"
+json <- "C:/Users/박지윤/Documents/GitHub/sceneCP_transfer2026/result/demo_result_21_jy.json"
+json_dir <- "C:/Users/박지윤/Documents/GitHub/sceneCP_transfer2026/result"
+#json_pattern <- "demo_result_17.*\\.json$"
 
 json_raw <- fromJSON(json, flatten = TRUE)
-#str(json_raw)
-df  <- json_raw$data    #trial 기록들은 모두 "data" 항목에 들어있음 
+df  <- json_raw$data    #trial 기록들은 모두 "data" 항목에 들어있음
+
+#json_pattern에 맞는 실제 파일들 찾기 
+#json_files <- list.files(json_dir, pattern = json_pattern, full.names = TRUE, recursive = TRUE)
+#if (length(json_files) == 0) stop("No files matched pattern: ", json_pattern, " in ", json_dir)
+
+#파일 하나로 합침
+#df <- purrr::map_dfr(json_files, function(f) {
+#  json_raw <- fromJSON(f, flatten = TRUE)   #f는 실제 파일 경로
+#  json_raw$data
+#})
 
 ##### 3. session devision #####
 #세션1과 2의 경계 -> inst_session2

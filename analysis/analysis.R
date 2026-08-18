@@ -3,14 +3,14 @@ data_dir <- "C:/Users/박지윤/Documents/GitHub/sceneCP_transfer2026/analysis"
 
 transfer_cutoff <- 0.65
 #21
-rounds_session1 <- c(27, 27, 26)
-rounds_session2 <- c(23, 23, 23)
-rounds_session3 <- c(23, 23, 23)
+rounds_session1 <- c(27, 27, 26, 27, 27, 26)
+rounds_session2 <- c(23, 23, 23, 23, 23, 23)
+rounds_session3 <- c(23, 23, 23, 23, 23, 23)
 rounds_session4 <- c(24)
 #17
-rounds_session1 <- c(26, 26)
-rounds_session2 <- c(19, 18)
-rounds_session3 <- c(19, 18)
+rounds_session1 <- c(26, 26, 26, 26)
+rounds_session2 <- c(19, 18, 19, 18)
+rounds_session3 <- c(19, 18, 19, 18)
 rounds_session4 <- c(24)
 
 filename_session1 <- "session1_21.*\\.csv$"
