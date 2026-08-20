@@ -180,7 +180,7 @@
                     <strong>Please try to respond as accurately and quickly as possible.</strong><br>
                     If you do not responded within <strong>2 seconds</strong>, it will automatically move on to the next image.
                 </p>
-                <p style="text-align:center; font-size:20px;">You will classify <strong>${econd.learning.b1.length * 4} images across ${n_block*2} rounds.</strong></p>
+                <p style="text-align:center; font-size:20px;">You will classify <strong>${(econd.learning.b1.length + econd.learning.b2.length + econd.learning.b3.length)*2} images across ${n_block*2} rounds.</strong></p>
             </div>`,
         choices: ['Start'],
         data: {disp_type: 'inst_session1'}
@@ -203,7 +203,7 @@
                 <img src="stimuli/instruction/inst_session2.png" style="display:block; width:1000px; max-width:100%; height:auto; margin:20px auto;"
 
                 <p style="text-align:center; font-size:20px; line-height:1.7;">
-                    You will complete <strong>${(econd.memory.b1.length + econd.memory.b2.length)* 2} trials across ${econd.n_block * 2} rounds.</strong><br>
+                    You will complete <strong>${econd.memory.b1.length * 6} trials across ${econd.n_block * 2} rounds.</strong><br>
                     Before you begin, you will complete <strong>3 practice trials.</strong>
                 </p>
             </div>`,
@@ -226,7 +226,7 @@
                 <img src="stimuli/instruction/inst_session3.png" style="display:block; width:1000px; max-width:100%; height:auto; margin:20px auto;"
 
                 <p style="text-align:center; font-size:20px; line-height:1.7;">
-                    You will complete  <strong>${(econd.transfer_memory.b1.length + econd.transfer_memory.b2.length)*2} trials across <strong>${econd.n_block * 2} rounds.</strong>
+                    You will complete  <strong>${(econd.transfer_memory.b1.length)*6} trials across <strong>${econd.n_block * 2} rounds.</strong>
                 </p>
             </div>`,
         choices: ['Start'],
