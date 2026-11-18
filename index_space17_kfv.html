@@ -320,8 +320,8 @@
     for(r=0; r<n_block; r++){
         this['learn_main'+(r+1)] = {
             timeline: [learn_display, feedback_display],
-            timeline_variables: econd.learning['b'+(r+1)],
-            // timeline_variables: _.shuffle(econd.learning['r'+(r+1)]).slice(0,5),
+            // timeline_variables: econd.learning['b'+(r+1)],
+            timeline_variables: _.shuffle(econd.learning['b'+(r+1)]).slice(0,10),
             randomize_order: true
         }
     }
@@ -340,7 +340,6 @@
         this['learn_main'+(r+3)] = {
             timeline: [learn_display, feedback_display],
             timeline_variables: econd.learning['b'+(r+1)],
-            // timeline_variables: _.shuffle(econd.learning['r'+(r+1)]).slice(0,5),
             randomize_order: true
         }
     }
@@ -410,14 +409,16 @@
     for(r=0; r<n_block; r++){
         this['test_main'+(r+1)] = {
             timeline: [fixation, target_display, blank, reconstruction],
-            timeline_variables: econd.memory['b'+(r+1)],
+            // timeline_variables: econd.memory['b'+(r+1)],
+            timeline_variables: _.shuffle(econd.memory['b'+(r+1)]).slice(0,10),
             randomize_order: true
         }
     }
     for(r=0; r<n_block; r++){
         this['transfer_main'+(r+1)] = {
             timeline: [fixation, target_display, blank, reconstruction],
-            timeline_variables: econd.transfer_memory['b'+(r+1)],
+            // timeline_variables: econd.transfer_memory['b'+(r+1)],
+            timeline_variables: _.shuffle(econd.transfer_memory['b'+(r+1)]).slice(0,10),
             randomize_order: true
         }
     }
@@ -485,7 +486,8 @@
     // ** transfer learn ** //    
     var transfer_learning = {
         timeline: [fixation, learn_display], // without feedback
-        timeline_variables: econd.transfer_learning.b1,
+        // timeline_variables: econd.transfer_learning.b1,
+        timeline_variables: _.shuffle(econd.transfer_learning.b1).slice(0,10),
         randomize_order: true
     };
 
@@ -665,48 +667,48 @@
     timeline.push(preload_prac);
     timeline.push(preload_learning);
     timeline.push(preload_transfer);
-    timeline.push(consent);
-    timeline.push(demographic_page);
+    // timeline.push(consent);
+    // timeline.push(demographic_page);
     timeline.push(inst_welcome);
     // ** learning ** //          
     timeline.push(inst_session1);    
     timeline.push(learn_main1);
-    timeline.push(learn_main_break1);
-    timeline.push(learn_main2);
-    timeline.push(learn_main_break2);
-    timeline.push(learn_main3);
-    timeline.push(learn_main_break3);
-    timeline.push(learn_main4);
+    // timeline.push(learn_main_break1);
+    // timeline.push(learn_main2);
+    // timeline.push(learn_main_break2);
+    // timeline.push(learn_main3);
+    // timeline.push(learn_main_break3);
+    // timeline.push(learn_main4);
     timeline.push(learn_main_break4);
     // ** memory reconstruction    
     timeline.push(inst_session2);    
-    timeline.push(test_prac);
-    timeline.push(test_prac2main);  
+    // timeline.push(test_prac);
+    // timeline.push(test_prac2main);  
     timeline.push(test_main1);
-    timeline.push(test_main_break1);
-    timeline.push(test_main2);
-    timeline.push(test_main_break2);
-    timeline.push(test_main3);
-    timeline.push(test_main_break3);
-    timeline.push(test_main4);
+    // timeline.push(test_main_break1);
+    // timeline.push(test_main2);
+    // timeline.push(test_main_break2);
+    // timeline.push(test_main3);
+    // timeline.push(test_main_break3);
+    // timeline.push(test_main4);
     timeline.push(test_main_break4);
     // ** transfer-memory reconstruction    
     timeline.push(inst_session3);
     timeline.push(transfer_main1);
-    timeline.push(test_main_break1);
-    timeline.push(transfer_main2);
-    timeline.push(test_main_break2);    
-    timeline.push(transfer_main3);
-    timeline.push(test_main_break3);
-    timeline.push(transfer_main4);
+    // timeline.push(test_main_break1);
+    // timeline.push(transfer_main2);
+    // timeline.push(test_main_break2);    
+    // timeline.push(transfer_main3);
+    // timeline.push(test_main_break3);
+    // timeline.push(transfer_main4);
     timeline.push(test_main_break4);      
     // ** transfer-learning
     timeline.push(inst_session4);    
     timeline.push(transfer_learning);
-    timeline.push(blank);
+    // timeline.push(blank);
     // ** debriefing question
     timeline.push(survey);
-    timeline.push(save_data);
+    // timeline.push(save_data);
     // ** end
     timeline.push({
         type: jsPsychFullscreen,
